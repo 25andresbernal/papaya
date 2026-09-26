@@ -5,6 +5,10 @@
 // Also: the browser can read Spanish out loud for free. We use that for words.
 
 import { englishVoice, spanishVoice } from './voice'
+import { loadClipManifest, playClip, stopClip } from './clips'
+
+// Ask for the list of recorded clips right away so they are ready by the first tap.
+if (typeof window !== 'undefined') void loadClipManifest()
 
 let ctx: AudioContext | null = null
 let enabled = true
@@ -139,8 +143,11 @@ export const sfx = {
 /** Say a Spanish word out loud, calmly and clearly, with a Latin American voice. */
 export function speak(text: string, opts: { rate?: number; lang?: string } = {}) {
   if (!speakEnabled) return
+  // A real recorded voice wins whenever we have one.
+  if (playClip('es', text, { rate: opts.rate ? opts.rate / 0.8 : 1 })) return
   if (typeof speechSynthesis === 'undefined') return
   try {
+    stopClip()
     speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     const voice = spanishVoice()
@@ -158,8 +165,10 @@ export function speak(text: string, opts: { rate?: number; lang?: string } = {})
 /** Say an English word or sentence with an American English voice. */
 export function speakEnglish(text: string, opts: { rate?: number } = {}) {
   if (!speakEnabled) return
+  if (playClip('en', text)) return
   if (typeof speechSynthesis === 'undefined') return
   try {
+    stopClip()
     speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     const voice = englishVoice()
