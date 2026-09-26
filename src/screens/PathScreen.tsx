@@ -6,10 +6,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Screen from '../components/Screen'
 import Hero from '../components/Hero'
+import Button from '../components/Button'
+import Pic from '../components/Pic'
 import { usePlayer } from '../game/PlayerContext'
 import { sfx } from '../audio/sound'
 import { ALL_LESSONS, UNITS, isLessonUnlocked, isUnitComplete, nextLesson, wordsForLesson } from '../data/words'
 import { WORLD_TITLE, WORLD_SUBTITLE } from '../data/curriculum'
+import { formatMsShort } from '../utils/format'
 import type { UnitColor } from '../types'
 
 /** Maps each unit's theme color name to a real Tailwind background class. */
@@ -47,9 +50,17 @@ export default function PathScreen() {
 
   return (
     <Screen>
-      <div className="pt-2 pb-2 text-center">
+      <div className="pt-2 pb-2 text-center relative">
         <h1 className="font-display text-3xl font-bold text-papaya-dark">{WORLD_TITLE}</h1>
         <p className="text-ink-soft font-bold">{WORLD_SUBTITLE}</p>
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <Button color="sky" size="sm" onClick={() => navigate('/race')}>
+            🏁 Race
+          </Button>
+          <Button color="papaya" size="sm" onClick={() => navigate('/stories')}>
+            📚 Books
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col items-center gap-8 pb-8">
@@ -57,9 +68,15 @@ export default function PathScreen() {
           const complete = isUnitComplete(unit.id, player)
           return (
             <div key={unit.id} className="w-full flex flex-col items-center gap-6">
-              <div className={`w-full rounded-3xl p-4 text-center text-white shadow-chunky-sm ${UNIT_BG[unit.color]}`}>
-                <div className="text-4xl leading-none" aria-hidden="true">
-                  {unit.emoji}
+              <div
+                className={`w-full rounded-3xl p-4 text-center text-white shadow-chunky-sm border-2 border-black/10 ${UNIT_BG[unit.color]}`}
+                style={{
+                  backgroundImage: 'radial-gradient(rgba(255,255,255,0.25) 2px, transparent 2px)',
+                  backgroundSize: '14px 14px',
+                }}
+              >
+                <div className="leading-none flex justify-center">
+                  <Pic emoji={unit.emoji} size={40} label={unit.title} />
                 </div>
                 <h2 className="font-display text-xl font-bold">{unit.title}</h2>
                 <p className="text-sm font-bold opacity-90">{unit.description}</p>
@@ -106,14 +123,21 @@ export default function PathScreen() {
                           }
                           ${shakeId === lesson.id ? 'animate-shake' : ''}`}
                       >
-                        {!unlocked ? '🔒' : emoji}
+                        <Pic emoji={!unlocked ? '🔒' : emoji} size={34} label={!unlocked ? 'Locked' : lesson.title} />
                       </button>
                       {!unlocked ? (
                         <span className="text-xs font-display font-bold text-ink-soft">Locked</span>
                       ) : done ? (
-                        <span className="text-sm" aria-label={`${crowns} crowns`}>
-                          {'⭐'.repeat(crowns)}
-                        </span>
+                        <>
+                          <span className="text-sm" aria-label={`${crowns} crowns`}>
+                            {'⭐'.repeat(crowns)}
+                          </span>
+                          {player.lessonBestMs[lesson.id] !== undefined && (
+                            <span className="text-xs font-display font-bold text-sky-dark">
+                              ⏱ {formatMsShort(player.lessonBestMs[lesson.id])}
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span className="text-xs font-display font-bold text-papaya-dark">START</span>
                       )}

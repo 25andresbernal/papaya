@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { PlayerProvider, usePlayer } from './game/PlayerContext'
 import { setSoundEnabled, setSpeakEnabled, unlockAudio } from './audio/sound'
+import { setPreferredVoices } from './audio/voice'
 import { startMusic, stopMusic } from './audio/music'
 import HomeScreen from './screens/HomeScreen'
 import OnboardingScreen from './screens/OnboardingScreen'
@@ -17,6 +18,10 @@ import GameScreen from './screens/GameScreen'
 import WordsScreen from './screens/WordsScreen'
 import SettingsScreen from './screens/SettingsScreen'
 import PracticeScreen from './screens/PracticeScreen'
+import ProfilesScreen from './screens/ProfilesScreen'
+import RaceScreen from './screens/RaceScreen'
+import StoriesScreen from './screens/StoriesScreen'
+import StoryScreen from './screens/StoryScreen'
 
 /** Keeps the sound settings in sync with the audio engine. */
 function AudioSync() {
@@ -26,11 +31,12 @@ function AudioSync() {
   useEffect(() => {
     setSoundEnabled(player.settings.sound)
     setSpeakEnabled(player.settings.speak)
-  }, [player.settings.sound, player.settings.speak])
+    setPreferredVoices(player.settings.voiceEs, player.settings.voiceEn)
+  }, [player.settings.sound, player.settings.speak, player.settings.voiceEs, player.settings.voiceEn])
 
   // Music plays in lessons and games, not on menus. Music must be on in settings.
   useEffect(() => {
-    const musicScreens = ['/lesson', '/game', '/practice']
+    const musicScreens = ['/lesson', '/game', '/practice', '/story/']
     const wants = player.settings.music && musicScreens.some((p) => location.pathname.startsWith(p))
     if (wants) startMusic()
     else stopMusic()
@@ -56,9 +62,10 @@ function ScrollToTop() {
   return null
 }
 
-/** Sends new kids to onboarding first. */
+/** Nobody signed in? Show "who is playing?". New kid? Show onboarding first. */
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
-  const { player } = usePlayer()
+  const { player, activeProfileId } = usePlayer()
+  if (!activeProfileId) return <Navigate to="/who" replace />
   if (!player.onboarded) return <Navigate to="/welcome" replace />
   return <>{children}</>
 }
@@ -70,7 +77,32 @@ export default function App() {
         <AudioSync />
         <ScrollToTop />
         <Routes>
+          <Route path="/who" element={<ProfilesScreen />} />
           <Route path="/welcome" element={<OnboardingScreen />} />
+          <Route
+            path="/stories"
+            element={
+              <RequireOnboarding>
+                <StoriesScreen />
+              </RequireOnboarding>
+            }
+          />
+          <Route
+            path="/story/:storyId"
+            element={
+              <RequireOnboarding>
+                <StoryScreen />
+              </RequireOnboarding>
+            }
+          />
+          <Route
+            path="/race"
+            element={
+              <RequireOnboarding>
+                <RaceScreen />
+              </RequireOnboarding>
+            }
+          />
           <Route
             path="/"
             element={

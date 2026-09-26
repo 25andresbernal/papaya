@@ -4,6 +4,12 @@
 //
 // Also: the browser can read Spanish out loud for free. We use that for words.
 
+import { englishVoice, spanishVoice } from './voice'
+import { loadClipManifest, playClip, stopClip } from './clips'
+
+// Ask for the list of recorded clips right away so they are ready by the first tap.
+if (typeof window !== 'undefined') void loadClipManifest()
+
 let ctx: AudioContext | null = null
 let enabled = true
 let speakEnabled = true
@@ -134,43 +140,69 @@ export const sfx = {
   },
 }
 
-let voicesReady = false
-function pickSpanishVoice(): SpeechSynthesisVoice | null {
-  if (typeof speechSynthesis === 'undefined') return null
-  const voices = speechSynthesis.getVoices()
-  voicesReady = voices.length > 0
-  // Prefer Latin American voices, then any Spanish voice.
-  const prefs = ['es-CO', 'es-MX', 'es-US', 'es-419', 'es-AR', 'es-ES', 'es']
-  for (const p of prefs) {
-    const v = voices.find((v) => v.lang.toLowerCase().startsWith(p.toLowerCase()))
-    if (v) return v
-  }
-  return null
-}
-
-if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.onvoiceschanged = () => pickSpanishVoice()
-}
-
-/** Say a Spanish word out loud using the browser's built-in voice. */
+/** Say a Spanish word out loud, calmly and clearly, with a Latin American voice. */
 export function speak(text: string, opts: { rate?: number; lang?: string } = {}) {
   if (!speakEnabled) return
+  // A real recorded voice wins whenever we have one.
+  if (playClip('es', text, { rate: opts.rate ? opts.rate / 0.8 : 1 })) return
   if (typeof speechSynthesis === 'undefined') return
   try {
+    stopClip()
     speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
-    const voice = pickSpanishVoice()
+    const voice = spanishVoice()
     if (voice) u.voice = voice
     u.lang = opts.lang ?? voice?.lang ?? 'es-MX'
-    u.rate = opts.rate ?? 0.85 // A little slow so kids can hear each sound.
-    u.pitch = 1.05
+    u.rate = opts.rate ?? 0.8 // Slow and calm so kids can hear each sound.
+    u.pitch = 1.1 // A touch higher sounds younger and friendlier.
+    u.volume = 1
     speechSynthesis.speak(u)
   } catch {
     // If speaking fails, the game still works.
   }
 }
 
+/** Say an English word or sentence with an American English voice. */
+export function speakEnglish(text: string, opts: { rate?: number } = {}) {
+  if (!speakEnabled) return
+  if (playClip('en', text)) return
+  if (typeof speechSynthesis === 'undefined') return
+  try {
+    stopClip()
+    speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    const voice = englishVoice()
+    if (voice) u.voice = voice
+    u.lang = voice?.lang ?? 'en-US'
+    u.rate = opts.rate ?? 0.95
+    u.pitch = 1.05
+    u.volume = 1
+    speechSynthesis.speak(u)
+  } catch {
+    // If speaking fails, the game still works.
+  }
+}
+
+/** Try a specific voice out loud (used by the Settings voice picker). */
+export function previewVoice(uri: string, text: string) {
+  if (typeof speechSynthesis === 'undefined') return
+  try {
+    const v = speechSynthesis.getVoices().find((x) => x.voiceURI === uri)
+    speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    if (v) {
+      u.voice = v
+      u.lang = v.lang
+    }
+    u.rate = 0.85
+    u.pitch = 1.1
+    speechSynthesis.speak(u)
+  } catch {
+    // Nothing to do.
+  }
+}
+
 /** Is a Spanish voice available on this device? */
 export function hasSpanishVoice(): boolean {
-  return voicesReady && pickSpanishVoice() !== null
+  return spanishVoice() !== null
 }

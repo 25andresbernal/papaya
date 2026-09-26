@@ -2,6 +2,7 @@
 
 import { NavLink } from 'react-router-dom'
 import { sfx } from '../audio/sound'
+import Pic from './Pic'
 
 const TABS = [
   { to: '/', emoji: '🏠', label: 'Home' },
@@ -27,7 +28,7 @@ export default function BottomNav() {
               }`
             }
           >
-            <span className="text-2xl leading-none">{t.emoji}</span>
+            <Pic emoji={t.emoji} size={26} label={t.label} />
             <span className="text-xs font-display font-bold">{t.label}</span>
           </NavLink>
         ))}

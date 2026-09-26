@@ -77,8 +77,26 @@ Papaya is Duolingo's habit loop, Prodigy's "learning gates fun" loop, and Kahoot
 - Local storage only. No accounts, no server state.
 - Web app, mobile first, works on a phone, tablet, or laptop.
 
+### Added in v1.1 (2026-09-26)
+- Player profiles: several kids share one device. A "Who is playing?" screen, sign out, switch, and a parent-zone delete. Each profile is its own save (`src/game/profiles.ts`).
+- Conversational onboarding in the buddy's voice, then a placement game that skips a kid who already knows Spanish past the units they know.
+- Race mode: every lesson is timed. Personal best per lesson, "new record" on the complete screen, and a Race screen with a local leaderboard across the profiles on this device. A global leaderboard needs a server and is v2.
+- Voice picker: a calm male Latin American Spanish voice and an American English voice are chosen automatically from the device's voices, and parents can pick others in Settings (`src/audio/voice.ts`). Voices come from the phone, so they differ by device.
+- Unique art: SVG buddy characters with moods (happy, excited, sad, mad, sleepy), a redesigned hero, and consistent flat vocabulary pictures. See `docs/research/visual-design.md`.
+- Silly buddy moods on the home screen when days are missed. In-app only, playful, never a push notification or a guilt trip.
+
+### Added in v1.2 (2026-09-26)
+- Word art: every vocabulary word has a hand-drawn flat SVG picture built from shared parts (`src/components/wordart/`). People are one shared `Kid` figure with different hair, colors, poses, and rig faces. Anything said out loud gets a speech bubble. Rules and recipes live in `docs/design/word-art.md`. Lessons never show emoji; Twemoji remains only as a fallback for a word with no drawing.
+- Drago the purple dragon, a fourth free starter buddy.
+- Piñata Party is a slicing game: swipe through the right piñata like Fruit Ninja. Taps do nothing.
+
+### Added in v2 groundwork (2026-09-26)
+- Story time: eight bilingual picture books (`src/data/stories.ts`) built only from words the kid has learned by that unit. Spanish line with tappable words and read-along highlighting, English beneath, a four-choice question at the end that pays like a short lesson. Books unlock as units start. No cap on how many books can be added.
+- Recorded voices: `src/audio/clips.ts` plays a real MP3 for any line that has one and falls back to the phone voice. `scripts/generate-audio.mts` makes the files with Azure (Colombian Spanish plus a child English voice). See `docs/audio-setup.md`.
+- Arcade look: researched and mocked up in `docs/mockups/`. Decision pending. See `docs/plan-v2.md`.
+
 ### Explicitly out of scope for v1
-- Multiplayer, friends, leaderboards, leagues
+- Multiplayer, friends, global leaderboards, leagues (a local leaderboard across profiles on one device is in)
 - Speech recognition
 - Other languages or other worlds
 - Native mobile app
@@ -193,10 +211,12 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 
 ### Key contracts (do not change without updating callers)
 - `src/types.ts` holds every shared shape.
-- `usePlayer()` from `src/game/PlayerContext.tsx` is the only way to read or change progress.
+- `usePlayer()` from `src/game/PlayerContext.tsx` is the only way to read or change progress. It also owns profiles (`profiles`, `activeProfileId`, `switchProfile`, `createProfile`, `signOut`, `deleteProfile`) and placement (`applyPlacement`).
+- `speak()` reads Spanish, `speakEnglish()` reads English. Voice choice lives in `src/audio/voice.ts`.
 - `sfx.*` and `speak()` from `src/audio/sound.ts` are the only way to make sound.
 - Mini-games take `MiniGameProps` from `src/games/types.ts` and are registered in `src/games/index.ts`.
 - Exercise generation lives in `src/game/exercises.ts`. Exercise UI lives in `src/components/exercises/`.
+- Word pictures come from `<WordArt wordId emoji size />` in `src/components/wordart/`. Buddy pictures come from `<Buddy id mood size />` in `src/components/buddies/`.
 
 ---
 
@@ -219,7 +239,8 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 3. **Phase 3 (Meta game):** Home, path, buddies, shop, arcade, settings, daily chest, celebrations.
 4. **Phase 4 (Arcade):** Six mini-games.
 5. **Phase 5 (AI):** Mascot messages through Claude with fallbacks.
-6. **Phase 6 (Test and polish):** Andre's kids play. Fix what breaks. Tune the economy.
+6. **Phase 6 (Test and polish):** Andre's kids play. Fix what breaks. Tune the economy. First round done 2026-09-26, which produced v1.1.
+7. **Phase 7 (v1.1):** Profiles, placement, race mode, voices, SVG buddies and hero, Twemoji pictures. Done 2026-09-26.
 
 ---
 
@@ -237,13 +258,19 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - **2026-09-26:** Hash routing so the app works on any static host without rewrite rules.
 - **2026-09-26:** Claude API key lives only in a Vercel serverless function. The browser never sees it.
 - **2026-09-26:** All commits are authored by Andre with no AI attribution trailers. Andre's call.
+- **2026-09-26:** v1.1 adds profiles, placement, race timing with a local leaderboard, voice picking, and SVG art. Andre's call after the first family test.
+- **2026-09-26:** Buddy moods when days are missed are allowed in-app because they are funny, not guilt trips. Still no push notifications.
+- **2026-09-26:** Lessons use hand-drawn word art, not emoji. One shared Kid figure draws every person so the set stays consistent. Andre's call after seeing emoji in lessons.
+- **2026-09-26:** Recorded voices are generated once and shipped as files; the phone voice is only a fallback. Azure chosen for its Colombian Spanish voices.
+- **2026-09-26:** Story books count as short lessons in the economy (one question, first-time bonus), so reading pays papayas and keeps the streak.
+- **2026-09-26:** Retro arcade look: research recommends an "arcade shell" around the existing art rather than a pixel-art redraw. Andre to decide after seeing `docs/mockups/`.
 - **2026-09-26:** Timer is off by default. Research says no time pressure for the youngest kids. Parents can turn it on.
 
 ---
 
 ## 15. Open Questions
 
-- [ ] Real illustrations to replace emoji placeholders for the buddies and curriculum items.
+- [ ] Arcade shell: go or no go, and which voice (Azure Gonzalo, Salome, or Andre's own via ElevenLabs). See `docs/plan-v2.md`.
 - [ ] Which Claude model for mascot messages (cheapest that reads well for kids). Default to Haiku.
 - [ ] Should tickets refill slowly over time (like 1 per hour) or only from lessons? Start lesson-only and watch the kids.
 - [ ] Recorded native audio (Andre's voice?) for the words instead of browser TTS.

@@ -145,6 +145,56 @@ export interface LessonSummary {
   /** Hero level before and after, so we can celebrate a level up. */
   levelBefore: number
   levelAfter: number
+  /** How long the lesson took, in milliseconds. 0 if not timed. */
+  timeMs: number
+  /** The kid's fastest time on this lesson, after this run. */
+  bestTimeMs: number
+  /** Was this run a new personal best (or the first timed run)? */
+  newBestTime: boolean
+}
+
+/* ------------------------------------------------------------------ */
+/* Story books                                                         */
+/* ------------------------------------------------------------------ */
+
+/** One page of a picture book: a Spanish line, its English, and a picture. */
+export interface StoryPage {
+  /** The Spanish sentence, 4 to 8 words, with accents. */
+  es: string
+  /** The same sentence in simple English. */
+  en: string
+  /** Word id whose drawing is the big picture on this page. */
+  artWordId: string
+  /** Optional second drawing shown smaller next to the first. */
+  artWordId2?: string
+  /** Optional tile color for the page background: 'papaya' | 'sky' | 'leaf' | 'sun' | 'coral'. */
+  color?: UnitColor
+}
+
+/** A four-choice question asked after the last page. */
+export interface StoryQuestion {
+  es: string
+  en: string
+  /** Four answers. Each has Spanish and English. */
+  choices: { es: string; en: string; artWordId?: string }[]
+  correctIndex: number
+}
+
+/** A short bilingual picture book. Unlocks with a unit. */
+export interface Story {
+  id: string
+  /** Spanish title: "A comer". */
+  title: string
+  /** English title: "Time to eat". */
+  titleEn: string
+  /** Unit that must have at least one finished lesson before the book opens. */
+  unitId: string
+  /** Word id whose drawing is the cover. */
+  coverWordId: string
+  /** One kid-readable line about the book. */
+  blurb: string
+  pages: StoryPage[]
+  question: StoryQuestion
 }
 
 /* ------------------------------------------------------------------ */
@@ -262,6 +312,10 @@ export interface PlayerState {
   crowns: Record<string, number>
   /** Word learning stats keyed by word id. */
   words: Record<string, WordStat>
+  /** Fastest finish per lesson id, in milliseconds. Race yourself! */
+  lessonBestMs: Record<string, number>
+  /** How many units the placement game skipped the kid past. 0 = started at the beginning. */
+  placementUnit: number
 
   unlockedCharacterIds: string[]
   ownedItemIds: string[]
@@ -275,7 +329,13 @@ export interface PlayerState {
     music: boolean
     /** Read the Spanish out loud with the browser's voice. */
     speak: boolean
-    /** Show a timer in lessons for older kids. Off by default. */
+    /** Per-question countdown for older kids. Off by default. */
     timer: boolean
+    /** Show the race stopwatch during lessons. On by default. */
+    raceClock: boolean
+    /** Chosen Spanish voice (voiceURI), or null for the app's best guess. */
+    voiceEs: string | null
+    /** Chosen English voice (voiceURI), or null for the app's best guess. */
+    voiceEn: string | null
   }
 }

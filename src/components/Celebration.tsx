@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import Confetti from './Confetti'
 import Button from './Button'
 import Modal from './Modal'
+import Pic from './Pic'
 import { sfx } from '../audio/sound'
 
 export default function Celebration({
@@ -30,7 +31,9 @@ export default function Celebration({
     <>
       <Confetti />
       <Modal onClose={onDone}>
-        <div className="text-8xl animate-bounce-soft mb-3">{emoji}</div>
+        <div className="mb-3 flex justify-center">
+          <Pic emoji={emoji} size={88} className="animate-bounce-soft" label={title} />
+        </div>
         <h2 className="text-3xl font-display font-bold text-papaya-dark">{title}</h2>
         {subtitle && <p className="mt-2 text-lg text-ink-soft font-bold">{subtitle}</p>}
         <Button color="leaf" size="lg" full className="mt-5" onClick={onDone}>

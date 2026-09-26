@@ -1,27 +1,63 @@
 // The PlayerContext is the one place that holds the kid's progress while the app runs.
 // Any screen can call usePlayer() to read the state or change it.
 // Every change is saved to the browser right away.
+//
+// It also knows WHO is playing. More than one kid can share a phone:
+// each has a profile, and switching profiles swaps the whole saved game.
 
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ExerciseResult, LessonSummary, PlayerState, ShopSlot } from '../types'
 import { loadPlayer, makeNewPlayer, resetPlayer, savePlayer } from './storage'
+import {
+  createProfile as createProfileInStorage,
+  deleteProfile as deleteProfileInStorage,
+  getActiveProfileId,
+  listProfiles,
+  setActiveProfileId,
+  updateProfileMeta,
+} from './profiles'
+import type { ProfileMeta } from './profiles'
 import { applyLesson, canOpenChest, checkStreakOnOpen } from './progression'
 import { ECONOMY } from './economy'
 import { randInt } from '../utils/random'
 import { todayKey } from '../utils/date'
+import { UNITS } from '../data/curriculum'
 
 export interface PlayerApi {
   player: PlayerState
   /** Replace part of the state. Prefer the named helpers below. */
   update: (patch: Partial<PlayerState> | ((p: PlayerState) => PlayerState)) => void
 
+  /* ---------- profiles: who is playing ---------- */
+  /** Everyone who has a save on this device. */
+  profiles: ProfileMeta[]
+  /** The active profile id, or null when nobody is signed in. */
+  activeProfileId: string | null
+  /** Make this kid the active player. Loads their save. */
+  switchProfile: (id: string) => void
+  /** Add a brand new kid and make them active. They go through onboarding next. */
+  createProfile: () => string
+  /** Sign out: nobody is active, so the "who is playing?" screen shows. */
+  signOut: () => void
+  /** Remove a kid and their save for good. */
+  deleteProfile: (id: string) => void
+
   /** Onboarding: set name, buddy, hero color, and mark onboarded. */
   finishOnboarding: (name: string, buddyId: string, color: string) => void
+  /**
+   * Placement: the kid already knows the first `unitCount` units.
+   * Marks those lessons done (1 crown) and their words as known, so the path
+   * opens up at the right spot. 0 means start at the very beginning.
+   */
+  applyPlacement: (unitCount: number) => void
 
-  /** Called by the lesson screen when the last exercise is done. */
-  completeLesson: (lessonId: string, unitId: string, results: ExerciseResult[]) => LessonSummary
+  /**
+   * Called by the lesson screen when the last exercise is done.
+   * elapsedMs is how long the lesson took (for racing yourself).
+   */
+  completeLesson: (lessonId: string, unitId: string, results: ExerciseResult[], elapsedMs?: number) => LessonSummary
 
   /** Spend papayas. Returns false if the kid cannot afford it. */
   spendCoins: (amount: number) => boolean
@@ -43,22 +79,37 @@ export interface PlayerApi {
   openDailyChest: () => { coins: number; tickets: number } | null
   chestAvailable: boolean
 
-  setSetting: (key: keyof PlayerState['settings'], value: boolean) => void
-  /** Wipe everything and start fresh. */
+  setSetting: <K extends keyof PlayerState['settings']>(key: K, value: PlayerState['settings'][K]) => void
+  /** Wipe the active kid's progress and start fresh (keeps the profile). */
   reset: () => void
 }
 
 const PlayerContext = createContext<PlayerApi | null>(null)
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
-  const [player, setPlayer] = useState<PlayerState>(() => checkStreakOnOpen(loadPlayer()))
+  const [activeProfileId, setActiveId] = useState<string | null>(() => getActiveProfileId())
+  const [profiles, setProfiles] = useState<ProfileMeta[]>(() => listProfiles())
+  const [player, setPlayer] = useState<PlayerState>(() =>
+    activeProfileId ? checkStreakOnOpen(loadPlayer(activeProfileId)) : makeNewPlayer(),
+  )
   // Keep the newest state in a ref so helpers that return values can read it.
   const ref = useRef(player)
   ref.current = player
+  const idRef = useRef(activeProfileId)
+  idRef.current = activeProfileId
 
+  // Save after every change, and keep the profile list's name/buddy/color fresh.
   useEffect(() => {
-    savePlayer(player)
-  }, [player])
+    if (!activeProfileId) return
+    savePlayer(activeProfileId, player)
+    updateProfileMeta(activeProfileId, {
+      name: player.name,
+      buddyId: player.buddyId,
+      color: player.hero.color,
+      lastPlayedAt: Date.now(),
+    })
+    setProfiles(listProfiles())
+  }, [player, activeProfileId])
 
   const update = useCallback<PlayerApi['update']>((patch) => {
     setPlayer((p) => {
@@ -67,6 +118,47 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return next
     })
   }, [])
+
+  /* ---------- profiles ---------- */
+
+  const switchProfile = useCallback((id: string) => {
+    setActiveProfileId(id)
+    const loaded = checkStreakOnOpen(loadPlayer(id))
+    ref.current = loaded
+    idRef.current = id
+    setActiveId(id)
+    setPlayer(loaded)
+    setProfiles(listProfiles())
+  }, [])
+
+  const createProfile = useCallback(() => {
+    const id = createProfileInStorage()
+    const fresh = makeNewPlayer()
+    ref.current = fresh
+    idRef.current = id
+    setActiveId(id)
+    setPlayer(fresh)
+    setProfiles(listProfiles())
+    return id
+  }, [])
+
+  const signOut = useCallback(() => {
+    setActiveProfileId(null)
+    idRef.current = null
+    setActiveId(null)
+    setProfiles(listProfiles())
+  }, [])
+
+  const deleteProfile = useCallback((id: string) => {
+    deleteProfileInStorage(id)
+    if (idRef.current === id) {
+      idRef.current = null
+      setActiveId(null)
+    }
+    setProfiles(listProfiles())
+  }, [])
+
+  /* ---------- progress ---------- */
 
   const finishOnboarding = useCallback<PlayerApi['finishOnboarding']>(
     (name, buddyId, color) => {
@@ -84,9 +176,35 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [update],
   )
 
+  const applyPlacement = useCallback<PlayerApi['applyPlacement']>(
+    (unitCount) => {
+      const units = UNITS.slice(0, Math.max(0, Math.min(unitCount, UNITS.length)))
+      const now = Date.now()
+      update((p) => {
+        const completedLessonIds = [...p.completedLessonIds]
+        const crowns = { ...p.crowns }
+        const words = { ...p.words }
+        for (const unit of units) {
+          for (const lesson of unit.lessons) {
+            if (!completedLessonIds.includes(lesson.id)) completedLessonIds.push(lesson.id)
+            crowns[lesson.id] = Math.max(crowns[lesson.id] ?? 0, 1)
+            for (const wordId of lesson.wordIds) {
+              if (!words[wordId] || words[wordId].timesSeen === 0) {
+                // Box 2 = "known, check again in a few days".
+                words[wordId] = { box: 2, timesSeen: 1, timesCorrect: 1, timesWrong: 0, lastSeen: now, due: now + 3 * 86_400_000 }
+              }
+            }
+          }
+        }
+        return { ...p, completedLessonIds, crowns, words, placementUnit: units.length }
+      })
+    },
+    [update],
+  )
+
   const completeLesson = useCallback<PlayerApi['completeLesson']>(
-    (lessonId, unitId, results) => {
-      const { state, summary } = applyLesson(ref.current, lessonId, unitId, results)
+    (lessonId, unitId, results, elapsedMs = 0) => {
+      const { state, summary } = applyLesson(ref.current, lessonId, unitId, results, Date.now(), elapsedMs)
       update(state)
       return summary
     },
@@ -207,7 +325,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   )
 
   const reset = useCallback(() => {
-    resetPlayer()
+    const id = idRef.current
+    if (id) resetPlayer(id)
     const fresh = makeNewPlayer()
     ref.current = fresh
     setPlayer(fresh)
@@ -217,7 +336,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     () => ({
       player,
       update,
+      profiles,
+      activeProfileId,
+      switchProfile,
+      createProfile,
+      signOut,
+      deleteProfile,
       finishOnboarding,
+      applyPlacement,
       completeLesson,
       spendCoins,
       addCoins,
@@ -237,7 +363,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     [
       player,
       update,
+      profiles,
+      activeProfileId,
+      switchProfile,
+      createProfile,
+      signOut,
+      deleteProfile,
       finishOnboarding,
+      applyPlacement,
       completeLesson,
       spendCoins,
       addCoins,

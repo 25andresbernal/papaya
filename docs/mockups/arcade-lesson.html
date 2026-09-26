@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>Papaya Arcade -- Lesson mockup</title>
+<style>
+
+    /* Google Fonts: blocked in this sandbox, so we also set real fallbacks below.
+       In the shipped app these load for real and the pixel type reads correctly. */
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Pixelify+Sans:wght@500;600;700&family=Press+Start+2P&display=swap');
+
+    :root {
+      /* 24-token arcade palette: outline / mid (brand, unchanged) / highlight per hue. */
+      --papaya-outline:#7A3B12; --papaya-mid:#FF8A3D; --papaya-hi:#FFC08A;
+      --leaf-outline:#153B18;   --leaf-mid:#3DAA47;   --leaf-hi:#7FCB85;
+      --sky-outline:#12405C;    --sky-mid:#4DA8DA;    --sky-hi:#8FCBEC;
+      --sun-outline:#7A5A0A;    --sun-mid:#FFC93C;    --sun-hi:#FFE28A;
+      --coral-outline:#7A2323;  --coral-mid:#FF6B6B;  --coral-hi:#FFA0A0;
+      --rose-outline:#7A2F4D;   --rose-mid:#FFA6C9;   --rose-hi:#FFD3E4;
+      --seed-outline:#1E140C;  --seed-mid:#3B2A1A;    --seed-hi:#6B4A2E;
+      --cream-outline:#D8C79E; --cream-mid:#FFF6E5;   --cream-hi:#FFFFFF;
+
+      --btn-red:#E21B3C; --btn-blue:#1368CE; --btn-yellow:#D89E00; --btn-green:#26890C;
+
+      /* Fredoka/Nunito stay the "readable" register. Pixelify Sans is the everyday
+         retro register. Press Start 2P is flavor-only, short all-caps strings. */
+      --font-display: 'Fredoka', 'Baloo 2', system-ui, sans-serif;
+      --font-body: 'Nunito', system-ui, sans-serif;
+      --font-pixel: 'Pixelify Sans', 'Fredoka', monospace;
+      --font-bitmap: 'Press Start 2P', 'Fredoka', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 390px;
+      min-height: 844px;
+      background: var(--cream-mid);
+      color: var(--seed-mid);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      position: relative;
+      /* faint dot-matrix texture app-wide, per the research's "handling the cream
+         background" recommendation -- barely there, never under text. */
+      background-image: radial-gradient(var(--cream-outline) 1px, transparent 1px);
+      background-size: 10px 10px;
+      background-position: 0 0;
+    }
+
+    h1, h2, h3, .font-display { font-family: var(--font-display); }
+    .font-pixel { font-family: var(--font-pixel); }
+    .font-bitmap { font-family: var(--font-bitmap); letter-spacing: 0.5px; }
+
+    /* ---- HUD strip (dark seed-brown panel, replaces the cream top bar) ---- */
+    .hud {
+      background: var(--seed-mid);
+      border-bottom: 3px solid var(--seed-outline);
+      padding: 10px 12px 12px;
+      position: relative;
+      z-index: 5;
+    }
+    .hud-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-hi);
+      border-radius: 8px;
+      padding: 4px 9px 4px 4px;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+    }
+    .chip .ico {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--cream-hi);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; line-height: 1;
+      border: 1px solid var(--seed-outline);
+    }
+    .chip .val {
+      /* Numbers a kid must trust stay in Fredoka, not Pixelify Sans: at UI sizes
+         Pixelify's capital C reads as O and its digit 5 reads as S -- fine for
+         short label words, risky for a currency count. See build notes. */
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      color: var(--cream-hi);
+    }
+    .chip.streak .val { color: var(--coral-hi); }
+    .chip.papaya .val { color: var(--sun-hi); }
+    .chip.ticket .val { color: var(--sky-hi); }
+
+    .xp-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+    .xp-lv { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--sun-hi); white-space: nowrap; }
+    .xp-track {
+      flex: 1; display: flex; gap: 2px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-outline);
+      border-radius: 4px;
+      padding: 2px;
+      height: 14px;
+    }
+    .xp-seg { flex: 1; border-radius: 1px; background: var(--seed-hi); opacity: 0.55; }
+    .xp-seg.lit { background: var(--leaf-mid); opacity: 1; box-shadow: 0 0 4px var(--leaf-hi) inset; }
+    .xp-txt { font-family: var(--font-display); font-weight: 600; font-size: 11px; color: var(--cream-outline); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* ---- pixel panel: 3px border + one corner-notch tab ----
+       The notch is a real element (not ::before) sitting just inside the
+       border, so it still shows on panels that also need overflow:hidden
+       (the jungle band clips at the panel edge, so a pseudo-element notch
+       hanging outside the box would get clipped away with it). */
+    .pixel-panel {
+      position: relative;
+      background: var(--cream-hi);
+      border: 3px solid var(--seed-outline);
+      border-radius: 8px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    }
+    .notch {
+      position: absolute;
+      top: 0; left: 0;
+      width: 16px; height: 16px;
+      background: var(--seed-outline);
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ---- pixel button: keeps btn-chunky's press-down feel, squares the corners ---- */
+    .pixel-btn {
+      font-family: var(--font-display); font-weight: 700;
+      border: 3px solid var(--seed-outline);
+      border-radius: 10px;
+      box-shadow: 0 6px 0 0 var(--seed-outline);
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+      color: var(--cream-hi);
+      text-align: center;
+    }
+
+    /* HUD numbers "snap in" -- discrete steps, no easing, unlike the eased characters */
+    @keyframes snap-in {
+      0%, 60% { opacity: 0; transform: translateY(3px) scale(0.9); }
+      61% { opacity: 1; transform: translateY(0) scale(1.12); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .snap { animation: snap-in 0.5s steps(2, end) both; }
+
+    @keyframes blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+    .caret { animation: blink 1s steps(1) infinite; }
+
+    @keyframes float-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .float { animation: float-soft 2.6s ease-in-out infinite; }
+
+    /* ---- bottom tab bar, pixel toolbar ---- */
+    .tabbar {
+      position: sticky; bottom: 0; left: 0; right: 0;
+      background: var(--seed-mid);
+      border-top: 3px solid var(--seed-outline);
+      display: flex;
+      padding: 6px 4px 8px;
+      z-index: 5;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 5px 2px;
+      border-radius: 8px;
+      color: var(--cream-outline);
+    }
+    .tab .tab-ico { font-size: 18px; line-height: 1; }
+    .tab .tab-label { font-family: var(--font-pixel); font-size: 9px; font-weight: 600; }
+    .tab.active { background: var(--seed-outline); color: var(--sun-mid); box-shadow: 0 3px 0 rgba(0,0,0,0.35); }
+
+    /* ---- jungle band: hand-built from stacked rects, low-contrast, Home only ---- */
+    .jungle-wrap { position: absolute; inset: 0; overflow: hidden; border-radius: 9px 9px 0 0; pointer-events: none; }
+    .jungle-wrap svg { image-rendering: pixelated; display: block; width: 100%; height: 100%; }
+
+    .lesson-hud {
+      background: var(--seed-mid); border-bottom: 3px solid var(--seed-outline);
+      padding: 10px 12px 12px; display: flex; align-items: center; gap: 10px;
+    }
+    .back-btn {
+      width: 34px; height: 34px; border-radius: 8px; background: var(--cream-hi);
+      border: 2px solid var(--seed-outline); display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0; box-shadow: 0 3px 0 var(--seed-outline);
+    }
+    .stage-banner {
+      flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0;
+    }
+    .stage-label {
+      font-family: var(--font-bitmap); font-size: 11px; color: var(--sun-mid);
+    }
+    .prog-track {
+      display: flex; gap: 2px; background: var(--seed-outline); border: 2px solid var(--seed-outline);
+      border-radius: 4px; padding: 2px; height: 10px;
+    }
+    .prog-seg { flex: 1; border-radius: 1px; background: var(--seed-hi); opacity: 0.5; }
+    .prog-seg.lit { background: var(--sun-mid); opacity: 1; }
+    .timer-chip {
+      display: flex; align-items: center; gap: 4px; background: var(--seed-outline);
+      border: 2px solid var(--seed-hi); border-radius: 8px; padding: 4px 8px; flex-shrink: 0;
+      font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--sky-hi);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .screen { padding: 22px 16px 16px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+    .art-panel { padding: 14px 18px; position: relative; }
+    .art-panel svg { display: block; }
+
+    .prompt-row { display: flex; align-items: center; gap: 8px; }
+    .prompt-row h2 { margin: 0; font-size: 30px; color: var(--seed-mid); }
+    .speak-ico {
+      width: 30px; height: 30px; border-radius: 8px; background: var(--sky-mid);
+      border: 2px solid var(--seed-outline); display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 13px; box-shadow: 0 3px 0 var(--sky-outline);
+    }
+
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+    .ans-btn {
+      min-height: 78px; border-radius: 10px; border: 3px solid var(--seed-outline);
+      font-family: var(--font-display); font-weight: 700; font-size: 18px; color: white;
+      display: flex; align-items: center; justify-content: center; text-align: center; padding: 8px;
+    }
+    .ans-red { background: var(--btn-red); box-shadow: 0 6px 0 var(--coral-outline); }
+    .ans-blue { background: var(--btn-blue); box-shadow: 0 6px 0 var(--sky-outline); }
+    .ans-yellow { background: var(--btn-yellow); box-shadow: 0 6px 0 var(--sun-outline); }
+    .ans-green { background: var(--btn-green); box-shadow: 0 6px 0 var(--leaf-outline); }
+
+    .combo-pop {
+      /* "COMBO" has a C -- Pixelify Sans draws it almost closed, easy to misread as
+         "OOMBO". A kid-facing word stays in Fredoka even inside an arcade pop-up. */
+      position: absolute; top: -14px; right: 8px;
+      background: var(--coral-mid); color: white; border: 2px solid var(--seed-outline);
+      border-radius: 8px; padding: 4px 10px; font-family: var(--font-display); font-weight: 700;
+      font-size: 14px; box-shadow: 0 3px 0 var(--coral-outline); transform: rotate(6deg);
+      z-index: 3;
+    }
+</style>
+</head>
+<body>
+  <header class="lesson-hud">
+    <div class="back-btn">←</div>
+    <div class="stage-banner">
+      <span class="stage-label">STAGE 1-2</span>
+      <div class="prog-track">
+        <div class="prog-seg lit"></div><div class="prog-seg lit"></div><div class="prog-seg lit"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div>
+      </div>
+    </div>
+    <div class="timer-chip">⏱ 0:12</div>
+  </header>
+
+  <div class="screen">
+    <div class="pixel-panel art-panel">
+      <span class="notch" aria-hidden="true"></span>
+      <div class="combo-pop">COMBO x3</div>
+      <svg viewBox="0 0 100 100" width="128" height="128" class="" role="img" style="display:inline-block;flex-shrink:0"><rect x="4" y="4" width="92" height="92" rx="22" fill="#F6E7CC"></rect><ellipse cx="40" cy="90" rx="18" ry="4" fill="#2D2A26" opacity="0.14"></ellipse><g transform="translate(40 90) scale(0.95)"><rect x="-11" y="-18" width="9" height="18" rx="4.5" fill="#6B4A2E"></rect><rect x="2" y="-18" width="9" height="18" rx="4.5" fill="#6B4A2E"></rect><ellipse cx="-7" cy="0" rx="7" ry="3.5" fill="#2D2A26"></ellipse><ellipse cx="7" cy="0" rx="7" ry="3.5" fill="#2D2A26"></ellipse><rect x="-13" y="-40" width="26" height="26" rx="9" fill="#4DA8DA"></rect><path d="M -11 -34 L -15 -18" stroke="#4DA8DA" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"></path><path d="M 11 -34 L 21 -52" stroke="#4DA8DA" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"></path><circle cx="21" cy="-52" r="4.5" fill="#FFD9B3"></circle><circle cx="0" cy="-52" r="15" fill="#FFD9B3"></circle><path d="M -15 -55 Q 0 -74 15 -55 Q 8 -64 0 -63 Q -8 -64 -15 -55 Z" fill="#3B2A1A"></path><g opacity="0.45"><ellipse cx="-10" cy="-48" rx="4" ry="2.5" fill="#FF6B6B"></ellipse><ellipse cx="10" cy="-48" rx="4" ry="2.5" fill="#FF6B6B"></ellipse></g><g><ellipse cx="-5.5" cy="-53" rx="4.800000000000001" ry="4.800000000000001" fill="#FFFFFF"></ellipse><ellipse cx="5.5" cy="-53" rx="4.800000000000001" ry="4.800000000000001" fill="#FFFFFF"></ellipse><circle cx="-5.5" cy="-53" r="3.6799999999999997" fill="#2D2A26"></circle><circle cx="5.5" cy="-53" r="3.6799999999999997" fill="#2D2A26"></circle><circle cx="-4.212" cy="-54.288" r="1.1039999999999999" fill="#FFFFFF"></circle><circle cx="6.788" cy="-54.288" r="1.1039999999999999" fill="#FFFFFF"></circle><circle cx="-6.9719999999999995" cy="-51.896" r="0.6623999999999999" fill="#FFFFFF"></circle><circle cx="4.0280000000000005" cy="-51.896" r="0.6623999999999999" fill="#FFFFFF"></circle><path d="M -9.82 -60.8 Q -5.5 -65.8 -1.1799999999999988 -60.8" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path><path d="M 1.1799999999999988 -60.8 Q 5.5 -65.8 9.82 -60.8" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path></g><g><path d="M -4.5 -47 Q 0 -38.519999999999996 4.5 -47 Z" fill="#2D2A26"></path><path d="M -2.25 -42.7725 Q 0 -40.545 2.25 -42.7725 Z" fill="#FF6B6B"></path></g></g><g><rect x="52" y="8" width="40" height="30" rx="12" fill="#FFFFFF"></rect><path d="M 56 37 L 62 47 L 69 37 Z" fill="#FFFFFF"></path><g transform="translate(72 23)"><text x="0" y="0" font-size="12" font-family="Fredoka, Nunito, system-ui, sans-serif" font-weight="700" fill="#2D2A26" text-anchor="middle" dominant-baseline="central">¡Hola!</text></g></g></svg>
+    </div>
+
+    <div class="prompt-row">
+      <h2>hi</h2>
+      <div class="speak-ico">🔊</div>
+    </div>
+
+    <div class="answers">
+      <button class="ans-btn ans-red">mija</button>
+      <button class="ans-btn ans-blue">triste</button>
+      <button class="ans-btn ans-yellow">hola</button>
+      <button class="ans-btn ans-green">te quiero</button>
+    </div>
+  </div>
+</body>
+</html>

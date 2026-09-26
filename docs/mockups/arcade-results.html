@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>Papaya Arcade -- Results mockup</title>
+<style>
+
+    /* Google Fonts: blocked in this sandbox, so we also set real fallbacks below.
+       In the shipped app these load for real and the pixel type reads correctly. */
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Pixelify+Sans:wght@500;600;700&family=Press+Start+2P&display=swap');
+
+    :root {
+      /* 24-token arcade palette: outline / mid (brand, unchanged) / highlight per hue. */
+      --papaya-outline:#7A3B12; --papaya-mid:#FF8A3D; --papaya-hi:#FFC08A;
+      --leaf-outline:#153B18;   --leaf-mid:#3DAA47;   --leaf-hi:#7FCB85;
+      --sky-outline:#12405C;    --sky-mid:#4DA8DA;    --sky-hi:#8FCBEC;
+      --sun-outline:#7A5A0A;    --sun-mid:#FFC93C;    --sun-hi:#FFE28A;
+      --coral-outline:#7A2323;  --coral-mid:#FF6B6B;  --coral-hi:#FFA0A0;
+      --rose-outline:#7A2F4D;   --rose-mid:#FFA6C9;   --rose-hi:#FFD3E4;
+      --seed-outline:#1E140C;  --seed-mid:#3B2A1A;    --seed-hi:#6B4A2E;
+      --cream-outline:#D8C79E; --cream-mid:#FFF6E5;   --cream-hi:#FFFFFF;
+
+      --btn-red:#E21B3C; --btn-blue:#1368CE; --btn-yellow:#D89E00; --btn-green:#26890C;
+
+      /* Fredoka/Nunito stay the "readable" register. Pixelify Sans is the everyday
+         retro register. Press Start 2P is flavor-only, short all-caps strings. */
+      --font-display: 'Fredoka', 'Baloo 2', system-ui, sans-serif;
+      --font-body: 'Nunito', system-ui, sans-serif;
+      --font-pixel: 'Pixelify Sans', 'Fredoka', monospace;
+      --font-bitmap: 'Press Start 2P', 'Fredoka', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 390px;
+      min-height: 844px;
+      background: var(--cream-mid);
+      color: var(--seed-mid);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      position: relative;
+      /* faint dot-matrix texture app-wide, per the research's "handling the cream
+         background" recommendation -- barely there, never under text. */
+      background-image: radial-gradient(var(--cream-outline) 1px, transparent 1px);
+      background-size: 10px 10px;
+      background-position: 0 0;
+    }
+
+    h1, h2, h3, .font-display { font-family: var(--font-display); }
+    .font-pixel { font-family: var(--font-pixel); }
+    .font-bitmap { font-family: var(--font-bitmap); letter-spacing: 0.5px; }
+
+    /* ---- HUD strip (dark seed-brown panel, replaces the cream top bar) ---- */
+    .hud {
+      background: var(--seed-mid);
+      border-bottom: 3px solid var(--seed-outline);
+      padding: 10px 12px 12px;
+      position: relative;
+      z-index: 5;
+    }
+    .hud-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-hi);
+      border-radius: 8px;
+      padding: 4px 9px 4px 4px;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+    }
+    .chip .ico {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--cream-hi);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; line-height: 1;
+      border: 1px solid var(--seed-outline);
+    }
+    .chip .val {
+      /* Numbers a kid must trust stay in Fredoka, not Pixelify Sans: at UI sizes
+         Pixelify's capital C reads as O and its digit 5 reads as S -- fine for
+         short label words, risky for a currency count. See build notes. */
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      color: var(--cream-hi);
+    }
+    .chip.streak .val { color: var(--coral-hi); }
+    .chip.papaya .val { color: var(--sun-hi); }
+    .chip.ticket .val { color: var(--sky-hi); }
+
+    .xp-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+    .xp-lv { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--sun-hi); white-space: nowrap; }
+    .xp-track {
+      flex: 1; display: flex; gap: 2px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-outline);
+      border-radius: 4px;
+      padding: 2px;
+      height: 14px;
+    }
+    .xp-seg { flex: 1; border-radius: 1px; background: var(--seed-hi); opacity: 0.55; }
+    .xp-seg.lit { background: var(--leaf-mid); opacity: 1; box-shadow: 0 0 4px var(--leaf-hi) inset; }
+    .xp-txt { font-family: var(--font-display); font-weight: 600; font-size: 11px; color: var(--cream-outline); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* ---- pixel panel: 3px border + one corner-notch tab ----
+       The notch is a real element (not ::before) sitting just inside the
+       border, so it still shows on panels that also need overflow:hidden
+       (the jungle band clips at the panel edge, so a pseudo-element notch
+       hanging outside the box would get clipped away with it). */
+    .pixel-panel {
+      position: relative;
+      background: var(--cream-hi);
+      border: 3px solid var(--seed-outline);
+      border-radius: 8px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    }
+    .notch {
+      position: absolute;
+      top: 0; left: 0;
+      width: 16px; height: 16px;
+      background: var(--seed-outline);
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ---- pixel button: keeps btn-chunky's press-down feel, squares the corners ---- */
+    .pixel-btn {
+      font-family: var(--font-display); font-weight: 700;
+      border: 3px solid var(--seed-outline);
+      border-radius: 10px;
+      box-shadow: 0 6px 0 0 var(--seed-outline);
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+      color: var(--cream-hi);
+      text-align: center;
+    }
+
+    /* HUD numbers "snap in" -- discrete steps, no easing, unlike the eased characters */
+    @keyframes snap-in {
+      0%, 60% { opacity: 0; transform: translateY(3px) scale(0.9); }
+      61% { opacity: 1; transform: translateY(0) scale(1.12); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .snap { animation: snap-in 0.5s steps(2, end) both; }
+
+    @keyframes blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+    .caret { animation: blink 1s steps(1) infinite; }
+
+    @keyframes float-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .float { animation: float-soft 2.6s ease-in-out infinite; }
+
+    /* ---- bottom tab bar, pixel toolbar ---- */
+    .tabbar {
+      position: sticky; bottom: 0; left: 0; right: 0;
+      background: var(--seed-mid);
+      border-top: 3px solid var(--seed-outline);
+      display: flex;
+      padding: 6px 4px 8px;
+      z-index: 5;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 5px 2px;
+      border-radius: 8px;
+      color: var(--cream-outline);
+    }
+    .tab .tab-ico { font-size: 18px; line-height: 1; }
+    .tab .tab-label { font-family: var(--font-pixel); font-size: 9px; font-weight: 600; }
+    .tab.active { background: var(--seed-outline); color: var(--sun-mid); box-shadow: 0 3px 0 rgba(0,0,0,0.35); }
+
+    /* ---- jungle band: hand-built from stacked rects, low-contrast, Home only ---- */
+    .jungle-wrap { position: absolute; inset: 0; overflow: hidden; border-radius: 9px 9px 0 0; pointer-events: none; }
+    .jungle-wrap svg { image-rendering: pixelated; display: block; width: 100%; height: 100%; }
+
+    body { background: linear-gradient(180deg, var(--seed-mid) 0%, var(--seed-mid) 130px, var(--cream-mid) 130px); }
+    .screen { padding: 26px 20px 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+    .clear-title {
+      color: var(--sun-mid); font-size: 15px; text-align: center; white-space: nowrap;
+      text-shadow: 2px 2px 0 var(--seed-outline); letter-spacing: -0.5px;
+    }
+
+    .rank-badge {
+      position: relative; width: 108px; height: 108px; border-radius: 16px;
+      background: radial-gradient(circle at 35% 30%, var(--sun-hi), var(--sun-mid) 60%, var(--sun-outline) 100%);
+      border: 4px solid var(--seed-outline);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 0 var(--seed-outline);
+    }
+    .rank-badge::before {
+      content: '';
+      position: absolute; top: -4px; left: -4px; width: 20px; height: 20px;
+      background: var(--seed-outline); clip-path: polygon(0 0, 100% 0, 0 100%);
+      border-radius: 12px 0 0 0;
+    }
+    .rank-badge .letter {
+      font-family: var(--font-bitmap); font-size: 44px; color: var(--seed-outline);
+    }
+
+    .crowns { display: flex; gap: 6px; font-size: 30px; }
+
+    .record-ribbon {
+      /* "RECORD" has a C -- Press Start 2P's bitmap C reads clearly, but we only
+         spend our two bitmap flavor-strings on STAGE CLEAR! and the rank letter,
+         per the "one or two short strings" rule. This ribbon uses Fredoka instead. */
+      position: relative;
+      background: var(--coral-mid); color: white; border: 2px solid var(--seed-outline);
+      font-family: var(--font-display); font-weight: 700; letter-spacing: 0.5px;
+      font-size: 14px; padding: 7px 18px;
+      box-shadow: 0 4px 0 var(--coral-outline);
+      clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    }
+
+    .buddy-row { display: flex; align-items: center; gap: 10px; }
+    .buddy-bubble {
+      background: var(--cream-hi); border: 2px solid var(--seed-outline); border-radius: 12px;
+      padding: 8px 12px; font-family: var(--font-display); font-weight: 700; font-size: 14px;
+      max-width: 200px;
+    }
+
+    .stat-panel { width: 100%; padding: 12px 16px; display: flex; flex-direction: column; gap: 9px; }
+    .stat-row { display: flex; align-items: center; justify-content: space-between; }
+    /* TICKETS has a C -- Pixelify Sans draws it almost closed (reads like TIOKETS),
+       and every value here is a number a kid must trust, so both stay in Fredoka. */
+    .stat-label { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--seed-mid); letter-spacing: 0.5px; text-transform: uppercase; }
+    .stat-value { font-family: var(--font-display); font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
+    .v-xp { color: var(--leaf-outline); }
+    .v-papaya { color: var(--papaya-outline); }
+    .v-ticket { color: var(--sky-outline); }
+    .v-time { color: var(--seed-mid); }
+    .stat-rule { height: 2px; background: repeating-linear-gradient(90deg, var(--cream-outline) 0 4px, transparent 4px 8px); }
+
+    .btn-row { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .cta-btn { width: 100%; padding: 13px 10px 15px; font-size: 17px; }
+    .cta-yellow { background: var(--sun-mid); color: var(--seed-outline); box-shadow: 0 6px 0 var(--sun-outline); }
+    .cta-green { background: var(--leaf-mid); box-shadow: 0 6px 0 var(--leaf-outline); }
+</style>
+</head>
+<body>
+  <div class="screen">
+    <div class="clear-title font-bitmap">STAGE CLEAR!</div>
+
+    <div class="rank-badge"><span class="letter">S</span></div>
+
+    <div class="crowns">
+      <span>👑</span><span>👑</span><span>👑</span>
+    </div>
+
+    <div class="record-ribbon">NEW RECORD!</div>
+
+    <div class="buddy-row">
+      <svg viewBox="0 0 100 100" width="140" height="140" class="" role="img" aria-label="Lola the Sloth" style="display:inline-block;overflow:visible"><ellipse cx="50" cy="92" rx="26" ry="5" fill="#2D2A26" opacity="0.18"></ellipse><ellipse cx="40" cy="85" rx="6" ry="4" fill="#6B4A2E"></ellipse><ellipse cx="60" cy="85" rx="6" ry="4" fill="#6B4A2E"></ellipse><ellipse cx="50" cy="64" rx="26" ry="22" fill="#9DBE8E"></ellipse><path d="M 30 54 Q 19 66 39 78" stroke="#9DBE8E" stroke-width="9" stroke-linecap="round" fill="none"></path><path d="M 70 54 Q 81 66 61 78" stroke="#9DBE8E" stroke-width="9" stroke-linecap="round" fill="none"></path><g fill="#6B4A2E"><ellipse cx="37" cy="80" rx="1.6" ry="2.4"></ellipse><ellipse cx="41" cy="82" rx="1.6" ry="2.4"></ellipse><ellipse cx="45" cy="81" rx="1.6" ry="2.4"></ellipse><ellipse cx="63" cy="80" rx="1.6" ry="2.4"></ellipse><ellipse cx="59" cy="82" rx="1.6" ry="2.4"></ellipse><ellipse cx="55" cy="81" rx="1.6" ry="2.4"></ellipse></g><ellipse cx="50" cy="52" rx="16" ry="14" fill="#FFF6E5"></ellipse><ellipse cx="43" cy="50" rx="6.5" ry="8.5" fill="#6B4A2E"></ellipse><ellipse cx="57" cy="50" rx="6.5" ry="8.5" fill="#6B4A2E"></ellipse><g><ellipse cx="43" cy="51" rx="7.5" ry="7.5" fill="#FFFFFF"></ellipse><ellipse cx="57" cy="51" rx="7.5" ry="7.5" fill="#FFFFFF"></ellipse><circle cx="43" cy="51" r="5.75" fill="#2D2A26"></circle><circle cx="57" cy="51" r="5.75" fill="#2D2A26"></circle><circle cx="45.0125" cy="48.9875" r="1.7249999999999999" fill="#FFFFFF"></circle><circle cx="59.0125" cy="48.9875" r="1.7249999999999999" fill="#FFFFFF"></circle><circle cx="40.7" cy="52.725" r="1.035" fill="#FFFFFF"></circle><circle cx="54.7" cy="52.725" r="1.035" fill="#FFFFFF"></circle><path d="M 36.25 40.5 Q 43 35.5 49.75 40.5" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path><path d="M 50.25 40.5 Q 57 35.5 63.75 40.5" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path></g><g><path d="M 44 58 Q 50 68.64 56 58 Z" fill="#2D2A26"></path><path d="M 47 62.97 Q 50 65.94 53 62.97 Z" fill="#FF6B6B"></path></g><g opacity="0.45"><ellipse cx="37" cy="56" rx="4" ry="2.5" fill="#FF6B6B"></ellipse><ellipse cx="63" cy="56" rx="4" ry="2.5" fill="#FF6B6B"></ellipse></g></svg>
+      <div class="buddy-bubble">Great job, Mateo! Go spend those papayas!</div>
+    </div>
+
+    <div class="pixel-panel stat-panel">
+      <span class="notch" aria-hidden="true"></span>
+      <div class="stat-row"><span class="stat-label">✨ XP</span><span class="stat-value v-xp snap">+40</span></div>
+      <div class="stat-rule"></div>
+      <div class="stat-row"><span class="stat-label">🥭 PAPAYAS</span><span class="stat-value v-papaya snap">+22</span></div>
+      <div class="stat-rule"></div>
+      <div class="stat-row"><span class="stat-label">🎟️ TICKETS</span><span class="stat-value v-ticket snap">+2</span></div>
+      <div class="stat-rule"></div>
+      <div class="stat-row"><span class="stat-label">⏱ TIME</span><span class="stat-value v-time snap">0:16.1</span></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="pixel-btn cta-btn cta-yellow">RACE AGAIN ⏱</button>
+      <button class="pixel-btn cta-btn cta-green">CONTINUE</button>
+    </div>
+  </div>
+</body>
+</html>

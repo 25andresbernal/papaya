@@ -15,6 +15,7 @@ import Mascot from '../components/Mascot'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import Celebration from '../components/Celebration'
+import Pic from '../components/Pic'
 
 export default function ArcadeScreen() {
   const navigate = useNavigate()
@@ -60,7 +61,7 @@ export default function ArcadeScreen() {
     <Screen>
       <h1 className="text-2xl font-display font-bold text-ink mt-3 mb-3">Arcade</h1>
 
-      <div className="bg-white rounded-3xl shadow-chunky-sm px-4 py-3 mb-4 text-center">
+      <div className="bg-white border-2 border-black/10 rounded-3xl shadow-chunky-sm px-4 py-3 mb-4 text-center">
         <p className="font-display font-bold text-ink">
           🎟️ Tickets: {player.tickets}. Finish a lesson to earn more!
         </p>
@@ -75,8 +76,10 @@ export default function ArcadeScreen() {
           const highScore = player.gameHighScores[game.id]
 
           return (
-            <div key={game.id} className="bg-white rounded-3xl shadow-chunky-sm p-4 flex gap-3 items-center">
-              <span className="text-6xl leading-none shrink-0">{unlocked ? game.emoji : gateMet ? game.emoji : '🔒'}</span>
+            <div key={game.id} className="bg-white border-2 border-black/10 rounded-3xl shadow-chunky-sm p-4 flex gap-3 items-center">
+              <span className="shrink-0">
+                <Pic emoji={unlocked ? game.emoji : gateMet ? game.emoji : '🔒'} size={64} label={game.title} />
+              </span>
               <div className="flex-1 min-w-0">
                 <p className="font-display font-bold text-lg text-ink leading-tight">{game.title}</p>
                 <p className="text-sm text-ink-soft leading-snug">{game.description}</p>

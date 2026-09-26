@@ -11,6 +11,7 @@ import Screen from '../components/Screen'
 import Hero from '../components/Hero'
 import Button from '../components/Button'
 import Confetti from '../components/Confetti'
+import Pic from '../components/Pic'
 
 const RARITY_STYLES: Record<Rarity, string> = {
   common: 'bg-gray-300 text-ink',
@@ -119,8 +120,10 @@ export default function ShopScreen() {
           const affordable = player.coins >= item.cost
 
           return (
-            <div key={item.id} className="rounded-3xl p-3 bg-white shadow-chunky-sm flex flex-col items-center text-center gap-1">
-              <span className="text-5xl leading-none mt-1">{item.emoji}</span>
+            <div key={item.id} className="rounded-3xl p-3 bg-white border-2 border-black/10 shadow-chunky-sm flex flex-col items-center text-center gap-1">
+              <span className="leading-none mt-1">
+                <Pic emoji={item.emoji} size={52} label={item.name} />
+              </span>
               <p className="font-display font-bold text-ink leading-tight">{item.name}</p>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${RARITY_STYLES[item.rarity]}`}>{item.rarity}</span>
 

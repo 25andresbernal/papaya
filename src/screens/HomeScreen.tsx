@@ -26,7 +26,7 @@ function hashText(text: string): number {
 }
 
 export default function HomeScreen() {
-  const { player, openDailyChest, chestAvailable } = usePlayer()
+  const { player, openDailyChest, chestAvailable, signOut } = usePlayer()
   const navigate = useNavigate()
   const [wiggle, setWiggle] = useState(false)
   const [chestReward, setChestReward] = useState<{ coins: number; tickets: number } | null>(null)
@@ -40,13 +40,25 @@ export default function HomeScreen() {
   if (player.lastPlayDate === today) moment = 'welcomeBack'
   else if (daysAway !== null && daysAway > 1) moment = 'comeback'
 
-  const line = useMascotLine(moment, {
+  const aiLine = useMascotLine(moment, {
     name: player.name,
     buddy: buddy.name,
     catchphrase: buddy.catchphrase,
     streak: player.streak,
     daysAway: daysAway ?? undefined,
   })
+
+  // The buddy's mood. Miss a day and they pout. Miss three and they flop over,
+  // very dramatically. It is a joke, not a guilt trip: the words never blame the kid.
+  const missed = daysAway !== null ? Math.max(0, daysAway - 1) : 0
+  const buddyMood: 'happy' | 'excited' | 'sad' | 'mad' = missed >= 3 ? 'mad' : missed >= 1 ? 'sad' : player.lessonsToday >= 1 ? 'excited' : 'happy'
+  const firstName = buddy.name.split(' ')[0]
+  const line =
+    missed >= 3
+      ? `${firstName} flopped over waiting ${missed} days. So dramatic! One lesson fixes it.`
+      : missed >= 1
+        ? `${firstName} pouted a little. A quick lesson will cheer them up!`
+        : aiLine
 
   function tapBuddy() {
     sfx.pop()
@@ -67,21 +79,44 @@ export default function HomeScreen() {
   const words = useMemo(() => learnedWords(player), [player])
   const wordOfDay = words.length > 0 ? words[hashText(today) % words.length] : null
 
+  function switchPlayer() {
+    sfx.tap()
+    signOut()
+    navigate('/who')
+  }
+
   return (
     <Screen>
-      <h1 className="mt-2 font-display text-3xl font-bold text-ink">¡Hola, {player.name || 'friend'}!</h1>
-
-      {/* Hero and buddy, side by side. Tap the buddy to hear them talk. */}
-      <section className="mt-4 w-full bg-white rounded-3xl p-4 shadow-chunky-sm flex items-center gap-3 animate-pop">
-        <Hero look={player.hero} size={140} />
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <h1 className="font-display text-3xl font-bold text-ink">¡Hola, {player.name || 'friend'}!</h1>
         <button
           type="button"
-          onClick={tapBuddy}
-          aria-label={`Tap ${buddy.name}`}
-          className="flex-1 min-w-0 text-left cursor-pointer"
+          onClick={switchPlayer}
+          aria-label="Switch player"
+          className="btn-chunky bg-white rounded-full w-10 h-10 flex items-center justify-center text-lg shrink-0 cursor-pointer"
         >
-          <Mascot buddyId={player.buddyId} message={line} size="md" className={wiggle ? 'animate-wiggle' : ''} />
+          👥
         </button>
+      </div>
+
+      {/* The buddy talks in a bubble on top. Hero and buddy stand together below.
+          Tap the buddy to hear them talk. */}
+      <section className="mt-4 w-full bg-white rounded-3xl p-4 shadow-chunky-sm border-2 border-cream-dark animate-pop">
+        <div className="relative bg-cream rounded-bubble px-4 py-3 border-2 border-cream-dark">
+          <p className="font-body font-bold text-ink text-base leading-snug text-center">{line}</p>
+          <span className="absolute right-12 -bottom-2 w-4 h-4 bg-cream border-r-2 border-b-2 border-cream-dark rotate-45" />
+        </div>
+        <div className="mt-3 flex items-end justify-around">
+          <Hero look={player.hero} size={130} mood={buddyMood === 'excited' ? 'excited' : 'happy'} />
+          <button
+            type="button"
+            onClick={tapBuddy}
+            aria-label={`Tap ${buddy.name}`}
+            className={`cursor-pointer active:scale-95 transition-transform ${wiggle ? 'animate-wiggle' : ''}`}
+          >
+            <Mascot buddyId={player.buddyId} size="md" mood={buddyMood} />
+          </button>
+        </div>
       </section>
 
       {/* Today's goal: one lesson keeps the streak alive. */}
@@ -116,8 +151,9 @@ export default function HomeScreen() {
       </section>
 
       {/* Quick links to the rest of the app. */}
-      <section className="mt-4 grid grid-cols-3 gap-3">
+      <section className="mt-4 grid grid-cols-2 gap-3">
         <NavCard emoji="🧠" label="Practice" to="/practice" />
+        <NavCard emoji="📚" label="Story time" to="/stories" />
         <NavCard emoji="📖" label={`${learnedCount(player)} words`} to="/words" />
         <NavCard emoji="⚙️" label="Settings" to="/settings" />
       </section>

@@ -14,6 +14,7 @@ import Screen from '../components/Screen'
 import Modal from '../components/Modal'
 import Button from '../components/Button'
 import Confetti from '../components/Confetti'
+import Pic from '../components/Pic'
 
 // Games never earn more than this many papayas per play. Lessons should
 // always be the best way to earn papayas, not the arcade.
@@ -129,7 +130,7 @@ export default function GameScreen() {
 function LoadingFallback() {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-cream gap-3">
-      <div className="text-6xl animate-bounce-soft">🎮</div>
+      <Pic emoji="🎮" size={64} className="animate-bounce-soft" label="" />
       <p className="font-display font-bold text-lg">Loading...</p>
     </div>
   )
