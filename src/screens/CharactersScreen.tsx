@@ -146,7 +146,7 @@ function CharacterCard({
   return (
     <div
       className={`relative rounded-3xl p-3 bg-white shadow-chunky-sm flex flex-col items-center text-center gap-1
-        ${!unlocked ? 'grayscale opacity-70' : ''} ${shaking ? 'animate-shake' : ''}`}
+        ${!unlocked && !showAffordable ? 'grayscale opacity-70' : ''} ${shaking ? 'animate-shake' : ''}`}
       onClick={showTooPoor ? onCantAfford : undefined}
       role={showTooPoor ? 'button' : undefined}
     >
@@ -180,7 +180,7 @@ function CharacterCard({
         )}
         {showAffordable && (
           <Button color="papaya" size="sm" full onClick={onUnlock}>
-            🥭 {character.cost}
+            {character.cost === 0 ? 'Free!' : `🥭 ${character.cost}`}
           </Button>
         )}
         {showLockedGate && (

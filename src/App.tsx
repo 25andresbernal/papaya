@@ -47,6 +47,15 @@ function AudioSync() {
   return null
 }
 
+/** Every new screen starts at the top, so tabs never open half-scrolled. */
+function ScrollToTop() {
+  const location = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+  return null
+}
+
 /** Sends new kids to onboarding first. */
 function RequireOnboarding({ children }: { children: React.ReactNode }) {
   const { player } = usePlayer()
@@ -59,6 +68,7 @@ export default function App() {
     <PlayerProvider>
       <HashRouter>
         <AudioSync />
+        <ScrollToTop />
         <Routes>
           <Route path="/welcome" element={<OnboardingScreen />} />
           <Route

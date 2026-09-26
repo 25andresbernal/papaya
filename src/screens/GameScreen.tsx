@@ -14,7 +14,6 @@ import Screen from '../components/Screen'
 import Modal from '../components/Modal'
 import Button from '../components/Button'
 import Confetti from '../components/Confetti'
-import BackButton from '../components/BackButton'
 
 // Games never earn more than this many papayas per play. Lessons should
 // always be the best way to earn papayas, not the arcade.
@@ -89,10 +88,6 @@ export default function GameScreen() {
 
   return (
     <Screen topBar={false} nav={false} bg="bg-seed">
-      <div className="absolute top-4 left-4 z-30">
-        <BackButton label="Quit game" onClick={handleQuit} />
-      </div>
-
       {ready && GameComponent ? (
         <Suspense fallback={<LoadingFallback />}>
           <GameComponent
