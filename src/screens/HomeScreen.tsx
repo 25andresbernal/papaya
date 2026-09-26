@@ -151,8 +151,9 @@ export default function HomeScreen() {
       </section>
 
       {/* Quick links to the rest of the app. */}
-      <section className="mt-4 grid grid-cols-3 gap-3">
+      <section className="mt-4 grid grid-cols-2 gap-3">
         <NavCard emoji="🧠" label="Practice" to="/practice" />
+        <NavCard emoji="📚" label="Story time" to="/stories" />
         <NavCard emoji="📖" label={`${learnedCount(player)} words`} to="/words" />
         <NavCard emoji="⚙️" label="Settings" to="/settings" />
       </section>

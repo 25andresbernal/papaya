@@ -53,14 +53,14 @@ export default function PathScreen() {
       <div className="pt-2 pb-2 text-center relative">
         <h1 className="font-display text-3xl font-bold text-papaya-dark">{WORLD_TITLE}</h1>
         <p className="text-ink-soft font-bold">{WORLD_SUBTITLE}</p>
-        <Button
-          color="sky"
-          size="sm"
-          className="mt-2"
-          onClick={() => navigate('/race')}
-        >
-          🏁 Race
-        </Button>
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <Button color="sky" size="sm" onClick={() => navigate('/race')}>
+            🏁 Race
+          </Button>
+          <Button color="papaya" size="sm" onClick={() => navigate('/stories')}>
+            📚 Books
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col items-center gap-8 pb-8">
