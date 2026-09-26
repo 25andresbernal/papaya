@@ -10,7 +10,7 @@ import { getWord } from '../../data/words'
 import { isCorrectPick } from '../../game/exercises'
 import { sfx, speak } from '../../audio/sound'
 import SpeakButton from '../SpeakButton'
-import Pic from '../Pic'
+import WordArt from '../wordart'
 
 // Kahoot-style button colors, in order.
 const BUTTON_COLORS = ['bg-btn-red', 'bg-btn-blue', 'bg-btn-yellow', 'bg-btn-green']
@@ -51,7 +51,7 @@ export default function PickExercise({
           <>
             {ex.promptEmoji && (
               <div className="leading-none">
-                <Pic emoji={ex.promptEmoji} size={76} label={ex.prompt} />
+                <WordArt wordId={ex.correctWordId} emoji={ex.promptEmoji} size={76} label={ex.prompt} />
               </div>
             )}
             <div className="flex items-center gap-2 flex-wrap justify-center">
@@ -80,7 +80,7 @@ export default function PickExercise({
               onClick={() => choose(c.wordId)}
               className={`btn-chunky ${BUTTON_COLORS[i % 4]} text-white min-h-20 rounded-3xl font-display text-xl font-bold flex flex-col items-center justify-center gap-1 px-2 py-3 cursor-pointer ${extra}`}
             >
-              {c.emoji && <Pic emoji={c.emoji} size={40} className="leading-none" label={c.label} />}
+              {c.emoji && <WordArt wordId={c.wordId} emoji={c.emoji} size={40} className="leading-none" label={c.label} />}
               <span>
                 {c.label}
                 {answered && isCorrectChoice ? ' ✓' : ''}

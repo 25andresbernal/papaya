@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MatchPairsExercise as MatchPairsExerciseData } from '../../types'
 import { sfx, speak } from '../../audio/sound'
 import { shuffle } from '../../utils/random'
-import Pic from '../Pic'
+import WordArt from '../wordart'
 
 export default function MatchPairsExercise({
   ex,
@@ -109,7 +109,7 @@ export default function MatchPairsExercise({
                   ${isMatched ? 'bg-leaf text-white opacity-80' : isSel ? 'bg-sky text-white' : 'bg-white text-ink'}
                   ${isShake ? 'animate-shake' : ''}`}
               >
-                <Pic emoji={p.emoji} size={28} className="leading-none" label={p.en} />
+                <WordArt wordId={p.wordId} emoji={p.emoji} size={28} className="leading-none" label={p.en} />
                 <span>{p.en}</span>
               </button>
             )

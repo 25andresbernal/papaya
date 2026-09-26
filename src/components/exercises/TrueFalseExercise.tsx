@@ -6,6 +6,7 @@ import { isCorrectTrueFalse } from '../../game/exercises'
 import { sfx } from '../../audio/sound'
 import SpeakButton from '../SpeakButton'
 import Pic from '../Pic'
+import WordArt from '../wordart'
 
 export default function TrueFalseExercise({
   ex,
@@ -31,7 +32,7 @@ export default function TrueFalseExercise({
   return (
     <div className="flex flex-col items-center gap-6 flex-1 mt-4">
       <div className="leading-none">
-        <Pic emoji={ex.emoji} size={76} label={ex.en} />
+        <WordArt wordId={ex.targetWordId} emoji={ex.emoji} size={76} label={ex.en} />
       </div>
       <div className="flex items-center gap-2 flex-wrap justify-center">
         <span className="font-display text-3xl font-bold">{ex.es}</span>

@@ -13,6 +13,7 @@ import { UNITS, WORDS, learnedCount, wordsForUnit } from '../data/words'
 import { wordStrength } from '../game/spacedRepetition'
 import type { Word, WordStat } from '../types'
 import Pic from '../components/Pic'
+import WordArt from '../components/wordart'
 
 export default function WordsScreen() {
   const { player } = usePlayer()
@@ -84,7 +85,7 @@ function WordChip({ word, stat }: { word: Word; stat?: WordStat }) {
       }}
       className="btn-chunky bg-white border-2 border-black/10 rounded-2xl p-3 flex flex-col items-center gap-1 cursor-pointer"
     >
-      <Pic emoji={word.emoji} size={34} className="leading-none" label={word.en} />
+      <WordArt wordId={word.id} emoji={word.emoji} size={34} className="leading-none" label={word.en} />
       <span className="font-display font-bold text-sm text-papaya-dark">{word.es}</span>
       <span className="text-xs text-ink-soft font-bold">{word.en}</span>
       <span className="flex gap-0.5" aria-label={`Strength ${dots} of 5`}>

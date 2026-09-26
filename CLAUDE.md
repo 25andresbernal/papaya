@@ -85,6 +85,11 @@ Papaya is Duolingo's habit loop, Prodigy's "learning gates fun" loop, and Kahoot
 - Unique art: SVG buddy characters with moods (happy, excited, sad, mad, sleepy), a redesigned hero, and consistent flat vocabulary pictures. See `docs/research/visual-design.md`.
 - Silly buddy moods on the home screen when days are missed. In-app only, playful, never a push notification or a guilt trip.
 
+### Added in v1.2 (2026-09-26)
+- Word art: every vocabulary word has a hand-drawn flat SVG picture built from shared parts (`src/components/wordart/`). People are one shared `Kid` figure with different hair, colors, poses, and rig faces. Anything said out loud gets a speech bubble. Rules and recipes live in `docs/design/word-art.md`. Lessons never show emoji; Twemoji remains only as a fallback for a word with no drawing.
+- Drago the purple dragon, a fourth free starter buddy.
+- Piñata Party is a slicing game: swipe through the right piñata like Fruit Ninja. Taps do nothing.
+
 ### Explicitly out of scope for v1
 - Multiplayer, friends, global leaderboards, leagues (a local leaderboard across profiles on one device is in)
 - Speech recognition
@@ -206,6 +211,7 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - `sfx.*` and `speak()` from `src/audio/sound.ts` are the only way to make sound.
 - Mini-games take `MiniGameProps` from `src/games/types.ts` and are registered in `src/games/index.ts`.
 - Exercise generation lives in `src/game/exercises.ts`. Exercise UI lives in `src/components/exercises/`.
+- Word pictures come from `<WordArt wordId emoji size />` in `src/components/wordart/`. Buddy pictures come from `<Buddy id mood size />` in `src/components/buddies/`.
 
 ---
 
@@ -249,6 +255,7 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - **2026-09-26:** All commits are authored by Andre with no AI attribution trailers. Andre's call.
 - **2026-09-26:** v1.1 adds profiles, placement, race timing with a local leaderboard, voice picking, and SVG art. Andre's call after the first family test.
 - **2026-09-26:** Buddy moods when days are missed are allowed in-app because they are funny, not guilt trips. Still no push notifications.
+- **2026-09-26:** Lessons use hand-drawn word art, not emoji. One shared Kid figure draws every person so the set stays consistent. Andre's call after seeing emoji in lessons.
 - **2026-09-26:** Timer is off by default. Research says no time pressure for the youngest kids. Parents can turn it on.
 
 ---
