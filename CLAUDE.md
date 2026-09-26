@@ -236,6 +236,7 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - **2026-09-26:** Audio is generated in the browser (Web Audio + speech synthesis). No sound files. Keeps the app tiny and avoids licensing.
 - **2026-09-26:** Hash routing so the app works on any static host without rewrite rules.
 - **2026-09-26:** Claude API key lives only in a Vercel serverless function. The browser never sees it.
+- **2026-09-26:** All commits are authored by Andre with no AI attribution trailers. Andre's call.
 - **2026-09-26:** Timer is off by default. Research says no time pressure for the youngest kids. Parents can turn it on.
 
 ---
@@ -264,6 +265,7 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 10. **Use the shared pieces.** `Button`, `Screen`, `TopBar`, `Mascot`, `Hero`, `Modal`, `Celebration`, `Confetti`, `SpeakButton`, `ProgressBar`, `BackButton`. Do not reinvent them.
 11. **Update this file.** Decisions go in Section 14. Questions go in Section 15.
 12. **`npm run build` must pass** before any commit.
+13. **Commits are authored by Andre.** Set git author and committer to `Andre Bernal <25andresbernal@gmail.com>`. Do not add `Co-Authored-By`, `Claude-Session`, or any other AI attribution trailer to commit messages or pull request descriptions. Andre is the sole contributor on GitHub.
 
 ---
 
