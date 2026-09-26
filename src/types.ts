@@ -145,6 +145,12 @@ export interface LessonSummary {
   /** Hero level before and after, so we can celebrate a level up. */
   levelBefore: number
   levelAfter: number
+  /** How long the lesson took, in milliseconds. 0 if not timed. */
+  timeMs: number
+  /** The kid's fastest time on this lesson, after this run. */
+  bestTimeMs: number
+  /** Was this run a new personal best (or the first timed run)? */
+  newBestTime: boolean
 }
 
 /* ------------------------------------------------------------------ */
@@ -262,6 +268,10 @@ export interface PlayerState {
   crowns: Record<string, number>
   /** Word learning stats keyed by word id. */
   words: Record<string, WordStat>
+  /** Fastest finish per lesson id, in milliseconds. Race yourself! */
+  lessonBestMs: Record<string, number>
+  /** How many units the placement game skipped the kid past. 0 = started at the beginning. */
+  placementUnit: number
 
   unlockedCharacterIds: string[]
   ownedItemIds: string[]
@@ -275,7 +285,13 @@ export interface PlayerState {
     music: boolean
     /** Read the Spanish out loud with the browser's voice. */
     speak: boolean
-    /** Show a timer in lessons for older kids. Off by default. */
+    /** Per-question countdown for older kids. Off by default. */
     timer: boolean
+    /** Show the race stopwatch during lessons. On by default. */
+    raceClock: boolean
+    /** Chosen Spanish voice (voiceURI), or null for the app's best guess. */
+    voiceEs: string | null
+    /** Chosen English voice (voiceURI), or null for the app's best guess. */
+    voiceEn: string | null
   }
 }

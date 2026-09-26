@@ -77,8 +77,16 @@ Papaya is Duolingo's habit loop, Prodigy's "learning gates fun" loop, and Kahoot
 - Local storage only. No accounts, no server state.
 - Web app, mobile first, works on a phone, tablet, or laptop.
 
+### Added in v1.1 (2026-09-26)
+- Player profiles: several kids share one device. A "Who is playing?" screen, sign out, switch, and a parent-zone delete. Each profile is its own save (`src/game/profiles.ts`).
+- Conversational onboarding in the buddy's voice, then a placement game that skips a kid who already knows Spanish past the units they know.
+- Race mode: every lesson is timed. Personal best per lesson, "new record" on the complete screen, and a Race screen with a local leaderboard across the profiles on this device. A global leaderboard needs a server and is v2.
+- Voice picker: a calm male Latin American Spanish voice and an American English voice are chosen automatically from the device's voices, and parents can pick others in Settings (`src/audio/voice.ts`). Voices come from the phone, so they differ by device.
+- Unique art: SVG buddy characters with moods (happy, excited, sad, mad, sleepy), a redesigned hero, and consistent flat vocabulary pictures. See `docs/research/visual-design.md`.
+- Silly buddy moods on the home screen when days are missed. In-app only, playful, never a push notification or a guilt trip.
+
 ### Explicitly out of scope for v1
-- Multiplayer, friends, leaderboards, leagues
+- Multiplayer, friends, global leaderboards, leagues (a local leaderboard across profiles on one device is in)
 - Speech recognition
 - Other languages or other worlds
 - Native mobile app
@@ -193,7 +201,8 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 
 ### Key contracts (do not change without updating callers)
 - `src/types.ts` holds every shared shape.
-- `usePlayer()` from `src/game/PlayerContext.tsx` is the only way to read or change progress.
+- `usePlayer()` from `src/game/PlayerContext.tsx` is the only way to read or change progress. It also owns profiles (`profiles`, `activeProfileId`, `switchProfile`, `createProfile`, `signOut`, `deleteProfile`) and placement (`applyPlacement`).
+- `speak()` reads Spanish, `speakEnglish()` reads English. Voice choice lives in `src/audio/voice.ts`.
 - `sfx.*` and `speak()` from `src/audio/sound.ts` are the only way to make sound.
 - Mini-games take `MiniGameProps` from `src/games/types.ts` and are registered in `src/games/index.ts`.
 - Exercise generation lives in `src/game/exercises.ts`. Exercise UI lives in `src/components/exercises/`.
@@ -237,6 +246,8 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - **2026-09-26:** Hash routing so the app works on any static host without rewrite rules.
 - **2026-09-26:** Claude API key lives only in a Vercel serverless function. The browser never sees it.
 - **2026-09-26:** All commits are authored by Andre with no AI attribution trailers. Andre's call.
+- **2026-09-26:** v1.1 adds profiles, placement, race timing with a local leaderboard, voice picking, and SVG art. Andre's call after the first family test.
+- **2026-09-26:** Buddy moods when days are missed are allowed in-app because they are funny, not guilt trips. Still no push notifications.
 - **2026-09-26:** Timer is off by default. Research says no time pressure for the youngest kids. Parents can turn it on.
 
 ---

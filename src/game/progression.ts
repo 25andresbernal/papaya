@@ -106,6 +106,7 @@ export function applyLesson(
   unitId: string,
   results: ExerciseResult[],
   now = Date.now(),
+  elapsedMs = 0,
 ): { state: PlayerState; summary: LessonSummary } {
   const today = todayKey(new Date(now))
   const firstTime = !state.completedLessonIds.includes(lessonId)
@@ -125,6 +126,13 @@ export function applyLesson(
   const crowns = crownsForScore(score.correct, score.total)
   const isNewDay = state.lastPlayDate !== today
 
+  // Race yourself: remember the fastest finish for this lesson.
+  const timeMs = Math.max(0, Math.round(elapsedMs))
+  const oldBest = state.lessonBestMs[lessonId] ?? 0
+  const newBestTime = timeMs > 0 && (oldBest === 0 || timeMs < oldBest)
+  const bestTimeMs = newBestTime ? timeMs : oldBest
+  const lessonBestMs = newBestTime ? { ...state.lessonBestMs, [lessonId]: timeMs } : state.lessonBestMs
+
   const next: PlayerState = {
     ...state,
     xp,
@@ -139,6 +147,7 @@ export function applyLesson(
     completedLessonIds: firstTime ? [...state.completedLessonIds, lessonId] : state.completedLessonIds,
     crowns: { ...state.crowns, [lessonId]: Math.max(state.crowns[lessonId] ?? 0, crowns) },
     words,
+    lessonBestMs,
   }
 
   const summary: LessonSummary = {
@@ -155,6 +164,9 @@ export function applyLesson(
     streakExtended: streakInfo.extended,
     levelBefore,
     levelAfter,
+    timeMs,
+    bestTimeMs,
+    newBestTime,
   }
 
   return { state: next, summary }

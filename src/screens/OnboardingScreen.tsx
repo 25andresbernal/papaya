@@ -13,7 +13,7 @@ import { STARTER_CHARACTER_IDS, getCharacter } from '../data/characters'
 import { HERO_COLORS } from '../data/shop'
 
 export default function OnboardingScreen() {
-  const { player, finishOnboarding } = usePlayer()
+  const { player, finishOnboarding, activeProfileId } = usePlayer()
   const navigate = useNavigate()
 
   const [step, setStep] = useState(0)
@@ -23,8 +23,9 @@ export default function OnboardingScreen() {
 
   // A kid who already finished onboarding does not need to see it again.
   useEffect(() => {
-    if (player.onboarded) navigate('/', { replace: true })
-  }, [player.onboarded, navigate])
+    if (!activeProfileId) navigate('/who', { replace: true })
+    else if (player.onboarded) navigate('/', { replace: true })
+  }, [player.onboarded, activeProfileId, navigate])
 
   if (player.onboarded) return null
 
