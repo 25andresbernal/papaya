@@ -90,6 +90,11 @@ Papaya is Duolingo's habit loop, Prodigy's "learning gates fun" loop, and Kahoot
 - Drago the purple dragon, a fourth free starter buddy.
 - Piñata Party is a slicing game: swipe through the right piñata like Fruit Ninja. Taps do nothing.
 
+### Added in v2 groundwork (2026-09-26)
+- Story time: eight bilingual picture books (`src/data/stories.ts`) built only from words the kid has learned by that unit. Spanish line with tappable words and read-along highlighting, English beneath, a four-choice question at the end that pays like a short lesson. Books unlock as units start. No cap on how many books can be added.
+- Recorded voices: `src/audio/clips.ts` plays a real MP3 for any line that has one and falls back to the phone voice. `scripts/generate-audio.mts` makes the files with Azure (Colombian Spanish plus a child English voice). See `docs/audio-setup.md`.
+- Arcade look: researched and mocked up in `docs/mockups/`. Decision pending. See `docs/plan-v2.md`.
+
 ### Explicitly out of scope for v1
 - Multiplayer, friends, global leaderboards, leagues (a local leaderboard across profiles on one device is in)
 - Speech recognition
@@ -256,13 +261,16 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 - **2026-09-26:** v1.1 adds profiles, placement, race timing with a local leaderboard, voice picking, and SVG art. Andre's call after the first family test.
 - **2026-09-26:** Buddy moods when days are missed are allowed in-app because they are funny, not guilt trips. Still no push notifications.
 - **2026-09-26:** Lessons use hand-drawn word art, not emoji. One shared Kid figure draws every person so the set stays consistent. Andre's call after seeing emoji in lessons.
+- **2026-09-26:** Recorded voices are generated once and shipped as files; the phone voice is only a fallback. Azure chosen for its Colombian Spanish voices.
+- **2026-09-26:** Story books count as short lessons in the economy (one question, first-time bonus), so reading pays papayas and keeps the streak.
+- **2026-09-26:** Retro arcade look: research recommends an "arcade shell" around the existing art rather than a pixel-art redraw. Andre to decide after seeing `docs/mockups/`.
 - **2026-09-26:** Timer is off by default. Research says no time pressure for the youngest kids. Parents can turn it on.
 
 ---
 
 ## 15. Open Questions
 
-- [ ] Real illustrations to replace emoji placeholders for the buddies and curriculum items.
+- [ ] Arcade shell: go or no go, and which voice (Azure Gonzalo, Salome, or Andre's own via ElevenLabs). See `docs/plan-v2.md`.
 - [ ] Which Claude model for mascot messages (cheapest that reads well for kids). Default to Haiku.
 - [ ] Should tickets refill slowly over time (like 1 per hour) or only from lessons? Start lesson-only and watch the kids.
 - [ ] Recorded native audio (Andre's voice?) for the words instead of browser TTS.

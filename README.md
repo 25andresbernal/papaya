@@ -17,6 +17,8 @@ Lessons earn papayas and tickets. Papayas unlock buddy characters, outfits, and 
 - Every lesson is timed. Beat your best time, and see a leaderboard of the players on your phone.
 - Twelve hand-drawn buddy characters with moods. Miss a few days and your buddy gets dramatic.
 - A voice picker so Spanish sounds Latin American and English sounds American, using the voices on your device.
+- Story time: eight bilingual picture books with tap-to-hear words, read-along highlighting, and a question at the end.
+- Hand-drawn pictures for every word, and real recorded voices once the audio files are generated (see docs/audio-setup.md).
 - Everything saves in the browser. No accounts. No ads. No real money.
 
 ## Run it

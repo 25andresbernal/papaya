@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>Papaya Arcade -- Home mockup</title>
+<style>
+
+    /* Google Fonts: blocked in this sandbox, so we also set real fallbacks below.
+       In the shipped app these load for real and the pixel type reads correctly. */
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=Pixelify+Sans:wght@500;600;700&family=Press+Start+2P&display=swap');
+
+    :root {
+      /* 24-token arcade palette: outline / mid (brand, unchanged) / highlight per hue. */
+      --papaya-outline:#7A3B12; --papaya-mid:#FF8A3D; --papaya-hi:#FFC08A;
+      --leaf-outline:#153B18;   --leaf-mid:#3DAA47;   --leaf-hi:#7FCB85;
+      --sky-outline:#12405C;    --sky-mid:#4DA8DA;    --sky-hi:#8FCBEC;
+      --sun-outline:#7A5A0A;    --sun-mid:#FFC93C;    --sun-hi:#FFE28A;
+      --coral-outline:#7A2323;  --coral-mid:#FF6B6B;  --coral-hi:#FFA0A0;
+      --rose-outline:#7A2F4D;   --rose-mid:#FFA6C9;   --rose-hi:#FFD3E4;
+      --seed-outline:#1E140C;  --seed-mid:#3B2A1A;    --seed-hi:#6B4A2E;
+      --cream-outline:#D8C79E; --cream-mid:#FFF6E5;   --cream-hi:#FFFFFF;
+
+      --btn-red:#E21B3C; --btn-blue:#1368CE; --btn-yellow:#D89E00; --btn-green:#26890C;
+
+      /* Fredoka/Nunito stay the "readable" register. Pixelify Sans is the everyday
+         retro register. Press Start 2P is flavor-only, short all-caps strings. */
+      --font-display: 'Fredoka', 'Baloo 2', system-ui, sans-serif;
+      --font-body: 'Nunito', system-ui, sans-serif;
+      --font-pixel: 'Pixelify Sans', 'Fredoka', monospace;
+      --font-bitmap: 'Press Start 2P', 'Fredoka', monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      width: 390px;
+      min-height: 844px;
+      background: var(--cream-mid);
+      color: var(--seed-mid);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      position: relative;
+      /* faint dot-matrix texture app-wide, per the research's "handling the cream
+         background" recommendation -- barely there, never under text. */
+      background-image: radial-gradient(var(--cream-outline) 1px, transparent 1px);
+      background-size: 10px 10px;
+      background-position: 0 0;
+    }
+
+    h1, h2, h3, .font-display { font-family: var(--font-display); }
+    .font-pixel { font-family: var(--font-pixel); }
+    .font-bitmap { font-family: var(--font-bitmap); letter-spacing: 0.5px; }
+
+    /* ---- HUD strip (dark seed-brown panel, replaces the cream top bar) ---- */
+    .hud {
+      background: var(--seed-mid);
+      border-bottom: 3px solid var(--seed-outline);
+      padding: 10px 12px 12px;
+      position: relative;
+      z-index: 5;
+    }
+    .hud-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-hi);
+      border-radius: 8px;
+      padding: 4px 9px 4px 4px;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+    }
+    .chip .ico {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--cream-hi);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; line-height: 1;
+      border: 1px solid var(--seed-outline);
+    }
+    .chip .val {
+      /* Numbers a kid must trust stay in Fredoka, not Pixelify Sans: at UI sizes
+         Pixelify's capital C reads as O and its digit 5 reads as S -- fine for
+         short label words, risky for a currency count. See build notes. */
+      font-family: var(--font-display); font-weight: 700; font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      color: var(--cream-hi);
+    }
+    .chip.streak .val { color: var(--coral-hi); }
+    .chip.papaya .val { color: var(--sun-hi); }
+    .chip.ticket .val { color: var(--sky-hi); }
+
+    .xp-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+    .xp-lv { font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--sun-hi); white-space: nowrap; }
+    .xp-track {
+      flex: 1; display: flex; gap: 2px;
+      background: var(--seed-outline);
+      border: 2px solid var(--seed-outline);
+      border-radius: 4px;
+      padding: 2px;
+      height: 14px;
+    }
+    .xp-seg { flex: 1; border-radius: 1px; background: var(--seed-hi); opacity: 0.55; }
+    .xp-seg.lit { background: var(--leaf-mid); opacity: 1; box-shadow: 0 0 4px var(--leaf-hi) inset; }
+    .xp-txt { font-family: var(--font-display); font-weight: 600; font-size: 11px; color: var(--cream-outline); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* ---- pixel panel: 3px border + one corner-notch tab ----
+       The notch is a real element (not ::before) sitting just inside the
+       border, so it still shows on panels that also need overflow:hidden
+       (the jungle band clips at the panel edge, so a pseudo-element notch
+       hanging outside the box would get clipped away with it). */
+    .pixel-panel {
+      position: relative;
+      background: var(--cream-hi);
+      border: 3px solid var(--seed-outline);
+      border-radius: 8px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+    }
+    .notch {
+      position: absolute;
+      top: 0; left: 0;
+      width: 16px; height: 16px;
+      background: var(--seed-outline);
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ---- pixel button: keeps btn-chunky's press-down feel, squares the corners ---- */
+    .pixel-btn {
+      font-family: var(--font-display); font-weight: 700;
+      border: 3px solid var(--seed-outline);
+      border-radius: 10px;
+      box-shadow: 0 6px 0 0 var(--seed-outline);
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
+      color: var(--cream-hi);
+      text-align: center;
+    }
+
+    /* HUD numbers "snap in" -- discrete steps, no easing, unlike the eased characters */
+    @keyframes snap-in {
+      0%, 60% { opacity: 0; transform: translateY(3px) scale(0.9); }
+      61% { opacity: 1; transform: translateY(0) scale(1.12); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .snap { animation: snap-in 0.5s steps(2, end) both; }
+
+    @keyframes blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+    .caret { animation: blink 1s steps(1) infinite; }
+
+    @keyframes float-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .float { animation: float-soft 2.6s ease-in-out infinite; }
+
+    /* ---- bottom tab bar, pixel toolbar ---- */
+    .tabbar {
+      position: sticky; bottom: 0; left: 0; right: 0;
+      background: var(--seed-mid);
+      border-top: 3px solid var(--seed-outline);
+      display: flex;
+      padding: 6px 4px 8px;
+      z-index: 5;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 5px 2px;
+      border-radius: 8px;
+      color: var(--cream-outline);
+    }
+    .tab .tab-ico { font-size: 18px; line-height: 1; }
+    .tab .tab-label { font-family: var(--font-pixel); font-size: 9px; font-weight: 600; }
+    .tab.active { background: var(--seed-outline); color: var(--sun-mid); box-shadow: 0 3px 0 rgba(0,0,0,0.35); }
+
+    /* ---- jungle band: hand-built from stacked rects, low-contrast, Home only ---- */
+    .jungle-wrap { position: absolute; inset: 0; overflow: hidden; border-radius: 9px 9px 0 0; pointer-events: none; }
+    .jungle-wrap svg { image-rendering: pixelated; display: block; width: 100%; height: 100%; }
+
+    .screen { padding: 14px 14px 8px; position: relative; z-index: 1; }
+    .hello-row { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 12px; }
+    .hello-row h1 { margin: 0; font-size: 27px; color: var(--seed-mid); }
+    .switch-btn {
+      width: 38px; height: 38px; border-radius: 9px; background: var(--cream-hi);
+      border: 2px solid var(--seed-outline); display: flex; align-items: center; justify-content: center;
+      font-size: 16px; box-shadow: 0 3px 0 var(--seed-outline);
+    }
+
+    .buddy-card { position: relative; padding: 14px; margin-bottom: 14px; overflow: hidden; }
+    .bubble {
+      position: relative; z-index: 2;
+      background: var(--cream-mid); border: 2px solid var(--seed-outline); border-radius: 14px;
+      padding: 10px 12px; text-align: center;
+    }
+    .bubble p { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--seed-mid); }
+    .bubble .tail {
+      position: absolute; right: 44px; bottom: -9px; width: 14px; height: 14px;
+      background: var(--cream-mid); border-right: 2px solid var(--seed-outline); border-bottom: 2px solid var(--seed-outline);
+      transform: rotate(45deg);
+    }
+    .stage-row { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: space-around; margin-top: 8px; padding-top: 6px; }
+
+    .goal-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--cream-hi); border: 2px solid var(--cream-outline); border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 14px;
+    }
+    .goal-row .goal-txt { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+    .goal-row .goal-fire { font-family: var(--font-display); font-weight: 700; color: var(--coral-mid); font-size: 16px; }
+
+    .continue-btn {
+      width: 100%; background: var(--leaf-mid); padding: 14px 10px 16px; margin-bottom: 14px;
+    }
+    .continue-btn .tag { font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: 1px; opacity: 0.95; }
+    .continue-btn .title { font-size: 21px; display: flex; align-items: center; gap: 6px; }
+
+    .chest-panel { padding: 14px; margin-bottom: 14px; text-align: center; }
+    .chest-inner {
+      background: linear-gradient(180deg, var(--sun-hi), var(--sun-mid));
+      border: 3px solid var(--seed-outline); border-radius: 8px;
+      padding: 12px; display: flex; align-items: center; gap: 12px; justify-content: center;
+    }
+    .chest-qmark {
+      width: 40px; height: 40px; border-radius: 6px; background: var(--sun-mid);
+      border: 2px solid var(--seed-outline); display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-bitmap); font-size: 16px; color: var(--seed-outline);
+      box-shadow: inset 0 0 0 2px var(--sun-hi);
+    }
+    .chest-txt { text-align: left; }
+    .chest-txt .label { font-family: var(--font-pixel); font-weight: 700; font-size: 13px; color: var(--seed-outline); letter-spacing: 0.5px; }
+    .chest-txt .sub { font-family: var(--font-body); font-weight: 700; font-size: 12px; color: var(--seed-mid); opacity: 0.75; }
+
+    .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .quick-links .qcard {
+      background: var(--cream-hi); border: 2px solid var(--cream-outline); border-radius: 12px;
+      padding: 10px 4px; text-align: center; box-shadow: 0 3px 0 var(--cream-outline);
+    }
+    .quick-links .qcard .qi { font-size: 22px; }
+    /* "PRACTICE" has a C, which Pixelify Sans draws almost closed (reads like an O) --
+       so quick-link labels stay in Fredoka, the readable register. */
+    .quick-links .qcard .qt { font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--seed-mid); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-row">
+      <div class="chip streak"><span class="ico">🔥</span><span class="val">3</span></div>
+      <div class="chip papaya"><span class="ico">🥭</span><span class="val">245</span></div>
+      <div class="chip ticket"><span class="ico">🎟️</span><span class="val">4</span></div>
+    </div>
+    <div class="xp-row">
+      <span class="xp-lv">LV 4</span>
+      <div class="xp-track" aria-label="XP progress">
+        <div class="xp-seg lit"></div><div class="xp-seg lit"></div><div class="xp-seg lit"></div><div class="xp-seg lit"></div><div class="xp-seg lit"></div><div class="xp-seg lit"></div><div class="xp-seg"></div><div class="xp-seg"></div><div class="xp-seg"></div><div class="xp-seg"></div><div class="xp-seg"></div><div class="xp-seg"></div>
+      </div>
+      <span class="xp-txt">340/500</span>
+    </div>
+  </header>
+
+  <div class="screen">
+    <div class="hello-row">
+      <h1>&iexcl;Hola, Mateo!</h1>
+      <div class="switch-btn">👥</div>
+    </div>
+
+    <section class="pixel-panel buddy-card">
+      <span class="notch" aria-hidden="true"></span>
+      <div class="jungle-wrap"><svg viewBox="0 0 320 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="90" fill="#FFF6E5"/>
+  <rect x="0" y="60" width="320" height="30" fill="#D8C79E" opacity="0.55"/>
+  <!-- distant stepped temple silhouette -->
+  <g fill="#1E140C" opacity="0.22">
+    <rect x="150" y="50" width="60" height="10"/>
+    <rect x="158" y="42" width="44" height="8"/>
+    <rect x="166" y="34" width="28" height="8"/>
+    <rect x="174" y="27" width="12" height="7"/>
+  </g>
+  <!-- jagged canopy skyline -->
+  <g fill="#153B18" opacity="0.3">
+    <rect x="0" y="52" width="16" height="20"/>
+    <rect x="16" y="46" width="16" height="26"/>
+    <rect x="32" y="56" width="16" height="16"/>
+    <rect x="48" y="42" width="16" height="30"/>
+    <rect x="64" y="50" width="16" height="22"/>
+    <rect x="210" y="48" width="16" height="24"/>
+    <rect x="226" y="40" width="16" height="32"/>
+    <rect x="242" y="54" width="16" height="18"/>
+    <rect x="258" y="44" width="16" height="28"/>
+    <rect x="274" y="52" width="16" height="20"/>
+    <rect x="290" y="44" width="16" height="28"/>
+    <rect x="306" y="50" width="14" height="22"/>
+  </g>
+  <!-- little pixel leaf clusters (trunk + diamond pompom) -->
+  <g fill="#3DAA47" opacity="0.38">
+    <rect x="24" y="34" width="4" height="18"/>
+    <rect x="20" y="26" width="4" height="4"/>
+    <rect x="28" y="26" width="4" height="4"/>
+    <rect x="16" y="30" width="4" height="4"/>
+    <rect x="32" y="30" width="4" height="4"/>
+    <rect x="24" y="22" width="4" height="4"/>
+
+    <rect x="252" y="30" width="4" height="22"/>
+    <rect x="248" y="22" width="4" height="4"/>
+    <rect x="256" y="22" width="4" height="4"/>
+    <rect x="244" y="26" width="4" height="4"/>
+    <rect x="260" y="26" width="4" height="4"/>
+    <rect x="252" y="18" width="4" height="4"/>
+
+    <rect x="288" y="36" width="4" height="16"/>
+    <rect x="284" y="28" width="4" height="4"/>
+    <rect x="292" y="28" width="4" height="4"/>
+    <rect x="280" y="32" width="4" height="4"/>
+    <rect x="296" y="32" width="4" height="4"/>
+    <rect x="288" y="24" width="4" height="4"/>
+  </g>
+</svg></div>
+      <div class="bubble">
+        <p>&iexcl;Hola, Mateo! Ready to play Stage 1-2?</p>
+        <span class="tail"></span>
+      </div>
+      <div class="stage-row">
+        <svg viewBox="0 0 100 100" width="150" height="150" style="overflow:visible"><rect x="36" y="80" width="12" height="12" rx="5" fill="#E56F1F"></rect><rect x="52" y="80" width="12" height="12" rx="5" fill="#E56F1F"></rect><rect x="30" y="52" width="40" height="36" rx="18" fill="#FF8A3D"></rect><rect x="20" y="58" width="10" height="20" rx="5" fill="#E56F1F"></rect><rect x="70" y="58" width="10" height="20" rx="5" fill="#E56F1F"></rect><circle cx="50" cy="32" r="24" fill="#FFD9B3"></circle><path d="M28 22 A24 24 0 0 1 72 22 Q60 27 50 25 Q40 27 28 22 Z" fill="#3B2A1A"></path><g><ellipse cx="42" cy="30" rx="9" ry="9" fill="#FFFFFF"></ellipse><ellipse cx="58" cy="30" rx="9" ry="9" fill="#FFFFFF"></ellipse><circle cx="42" cy="30" r="6.8999999999999995" fill="#2D2A26"></circle><circle cx="58" cy="30" r="6.8999999999999995" fill="#2D2A26"></circle><circle cx="44.415" cy="27.585" r="2.07" fill="#FFFFFF"></circle><circle cx="60.415" cy="27.585" r="2.07" fill="#FFFFFF"></circle><circle cx="39.24" cy="32.07" r="1.2419999999999998" fill="#FFFFFF"></circle><circle cx="55.24" cy="32.07" r="1.2419999999999998" fill="#FFFFFF"></circle><path d="M 33.9 18 Q 42 13 50.1 18" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path><path d="M 49.9 18 Q 58 13 66.1 18" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path></g><g opacity="0.45"><ellipse cx="34" cy="34" rx="4" ry="2.5" fill="#FF6B6B"></ellipse><ellipse cx="66" cy="34" rx="4" ry="2.5" fill="#FF6B6B"></ellipse></g><g><path d="M 43 38 Q 50 50.08 57 38 Z" fill="#2D2A26"></path><path d="M 46.5 43.465 Q 50 46.93 53.5 43.465 Z" fill="#FF6B6B"></path></g></svg>
+        <svg viewBox="0 0 100 100" width="160" height="160" class="" role="img" aria-label="Tico the Toucan" style="display:inline-block;overflow:visible"><ellipse cx="50" cy="92" rx="26" ry="5" fill="#2D2A26" opacity="0.18"></ellipse><rect x="38" y="84" width="9" height="7" rx="3.5" fill="#E56F1F"></rect><rect x="53" y="84" width="9" height="7" rx="3.5" fill="#E56F1F"></rect><ellipse cx="50" cy="64" rx="19" ry="23" fill="#3B2A1A"></ellipse><ellipse cx="50" cy="68" rx="10" ry="14" fill="#FFF6E5"></ellipse><ellipse cx="30" cy="52" rx="7" ry="11" fill="#3B2A1A" transform="rotate(-25 30 52)"></ellipse><ellipse cx="70" cy="60" rx="7" ry="11" fill="#3B2A1A"></ellipse><circle cx="50" cy="31" r="17" fill="#3B2A1A"></circle><ellipse cx="50" cy="28" rx="15" ry="9" fill="#4DA8DA"></ellipse><path d="M 37 37 Q 50 34 63 37 Q 66 54 56 66 Q 50 69 44 66 Q 34 54 37 37 Z" fill="#FF8A3D"></path><path d="M 40 50 Q 50 47 60 50 Q 59 60 54 65 Q 50 67 46 65 Q 41 60 40 50 Z" fill="#FFC93C"></path><circle cx="50" cy="62" r="2" fill="#3B2A1A"></circle><g><path d="M 43 42 Q 50 54.08 57 42 Z" fill="#E56F1F"></path><path d="M 46.5 47.465 Q 50 50.93 53.5 47.465 Z" fill="#FF6B6B"></path></g><g opacity="0.45"><ellipse cx="35" cy="31" rx="4" ry="2.5" fill="#FF6B6B"></ellipse><ellipse cx="65" cy="31" rx="4" ry="2.5" fill="#FF6B6B"></ellipse></g><g><ellipse cx="42.5" cy="27" rx="7.5" ry="7.5" fill="#FFFFFF"></ellipse><ellipse cx="57.5" cy="27" rx="7.5" ry="7.5" fill="#FFFFFF"></ellipse><circle cx="42.5" cy="27" r="5.75" fill="#2D2A26"></circle><circle cx="57.5" cy="27" r="5.75" fill="#2D2A26"></circle><circle cx="44.5125" cy="24.9875" r="1.7249999999999999" fill="#FFFFFF"></circle><circle cx="59.5125" cy="24.9875" r="1.7249999999999999" fill="#FFFFFF"></circle><circle cx="40.2" cy="28.725" r="1.035" fill="#FFFFFF"></circle><circle cx="55.2" cy="28.725" r="1.035" fill="#FFFFFF"></circle><path d="M 35.75 16.5 Q 42.5 11.5 49.25 16.5" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path><path d="M 50.75 16.5 Q 57.5 11.5 64.25 16.5" stroke="#2D2A26" stroke-width="2.5" stroke-linecap="round" fill="none"></path></g><circle cx="44" cy="26" r="1.4" fill="#FFFFFF" opacity="0.5"></circle></svg>
+      </div>
+    </section>
+
+    <section class="goal-row">
+      <span class="goal-txt">Today: 0/1 lesson</span>
+      <span class="goal-fire">🔥 3</span>
+    </section>
+
+    <button class="pixel-btn continue-btn">
+      <span class="tag">STAGE 1-2</span>
+      <span class="title">Say hi <span class="caret">▌</span></span>
+    </button>
+
+    <section class="pixel-panel chest-panel">
+      <span class="notch" aria-hidden="true"></span>
+      <div class="chest-inner">
+        <div class="chest-qmark">?</div>
+        <div class="chest-txt">
+          <div class="label">DAILY CHEST</div>
+          <div class="sub">Finish a lesson to open it</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quick-links">
+      <div class="qcard"><div class="qi">🧠</div><div class="qt">PRACTICE</div></div>
+      <div class="qcard"><div class="qi">📖</div><div class="qt">38 WORDS</div></div>
+      <div class="qcard"><div class="qi">⚙️</div><div class="qt">SETTINGS</div></div>
+    </section>
+  </div>
+
+  <nav class="tabbar">
+    <div class="tab active"><span class="tab-ico">🏠</span><span class="tab-label">HOME</span></div>
+    <div class="tab"><span class="tab-ico">🗺️</span><span class="tab-label">LEARN</span></div>
+    <div class="tab"><span class="tab-ico">🎮</span><span class="tab-label">PLAY</span></div>
+    <div class="tab"><span class="tab-ico">🦜</span><span class="tab-label">BUDDIES</span></div>
+    <div class="tab"><span class="tab-ico">🛍️</span><span class="tab-label">SHOP</span></div>
+  </nav>
+</body>
+</html>
