@@ -11,6 +11,7 @@ import { sfx, speak } from '../audio/sound'
 import { mascotLine } from '../ai/mascot'
 import Screen from '../components/Screen'
 import Mascot from '../components/Mascot'
+import Buddy from '../components/buddies'
 import Button from '../components/Button'
 import Celebration from '../components/Celebration'
 
@@ -158,12 +159,13 @@ function CharacterCard({
 
       <button
         type="button"
-        className="text-6xl leading-none mt-1 cursor-pointer disabled:cursor-default"
+        className="leading-none mt-1 cursor-pointer disabled:cursor-default relative"
         disabled={!unlocked}
         aria-label={unlocked ? `Hear ${character.name}` : character.name}
         onClick={unlocked ? onSpeak : undefined}
       >
-        {unlocked ? character.emoji : '🔒'}
+        <Buddy id={character.id} mood={unlocked ? (isBuddy ? 'excited' : 'happy') : 'sleepy'} size={88} />
+        {!unlocked && <span className="absolute -bottom-1 -right-1 text-2xl">🔒</span>}
       </button>
 
       <p className="font-display font-bold text-ink leading-tight">{character.name}</p>

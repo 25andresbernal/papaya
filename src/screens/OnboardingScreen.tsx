@@ -22,6 +22,7 @@ import Screen from '../components/Screen'
 import Button from '../components/Button'
 import Hero from '../components/Hero'
 import Mascot from '../components/Mascot'
+import Buddy from '../components/buddies'
 import BackButton from '../components/BackButton'
 import ProgressBar from '../components/ProgressBar'
 import Confetti from '../components/Confetti'
@@ -180,7 +181,7 @@ export default function OnboardingScreen() {
                     selected ? 'ring-4 ring-papaya' : ''
                   }`}
                 >
-                  <span className="text-7xl leading-none">{c.emoji}</span>
+                  <Buddy id={id} mood={selected ? 'excited' : 'happy'} size={84} />
                   <span className="flex flex-col gap-0.5">
                     <span className="font-display text-xl font-bold text-ink">{c.name}</span>
                     <span className="text-sm text-ink-soft font-bold">{c.blurb}</span>

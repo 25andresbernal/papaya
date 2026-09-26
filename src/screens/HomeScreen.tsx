@@ -40,13 +40,25 @@ export default function HomeScreen() {
   if (player.lastPlayDate === today) moment = 'welcomeBack'
   else if (daysAway !== null && daysAway > 1) moment = 'comeback'
 
-  const line = useMascotLine(moment, {
+  const aiLine = useMascotLine(moment, {
     name: player.name,
     buddy: buddy.name,
     catchphrase: buddy.catchphrase,
     streak: player.streak,
     daysAway: daysAway ?? undefined,
   })
+
+  // The buddy's mood. Miss a day and they pout. Miss three and they flop over,
+  // very dramatically. It is a joke, not a guilt trip: the words never blame the kid.
+  const missed = daysAway !== null ? Math.max(0, daysAway - 1) : 0
+  const buddyMood: 'happy' | 'excited' | 'sad' | 'mad' = missed >= 3 ? 'mad' : missed >= 1 ? 'sad' : player.lessonsToday >= 1 ? 'excited' : 'happy'
+  const firstName = buddy.name.split(' ')[0]
+  const line =
+    missed >= 3
+      ? `${firstName} flopped over waiting ${missed} days. So dramatic! One lesson fixes it.`
+      : missed >= 1
+        ? `${firstName} pouted a little. A quick lesson will cheer them up!`
+        : aiLine
 
   function tapBuddy() {
     sfx.pop()
@@ -96,7 +108,7 @@ export default function HomeScreen() {
           aria-label={`Tap ${buddy.name}`}
           className="flex-1 min-w-0 text-left cursor-pointer"
         >
-          <Mascot buddyId={player.buddyId} message={line} size="md" className={wiggle ? 'animate-wiggle' : ''} />
+          <Mascot buddyId={player.buddyId} message={line} size="md" mood={buddyMood} className={wiggle ? 'animate-wiggle' : ''} />
         </button>
       </section>
 
