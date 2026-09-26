@@ -153,7 +153,7 @@ export default function PinataGame({ knownWords, onFinish, onQuit, buddyEmoji }:
   const round = rounds[roundIndex]
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col">
+    <div className="min-h-screen w-full max-w-md mx-auto px-4 flex flex-col">
       {/* The piñatas swing gently until one is smashed. */}
       <style>{`
         @keyframes swing {

@@ -208,7 +208,7 @@ export default function RunGame({ knownWords, onFinish, onQuit, buddyEmoji }: Mi
   }, [phase, onFinish])
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
+    <div className="min-h-screen w-full max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
       <style>{`
         @keyframes track-scroll { from { background-position-x: 0; } to { background-position-x: -80px; } }
         .track-scroll { animation: track-scroll 0.6s linear infinite; }

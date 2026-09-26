@@ -122,7 +122,7 @@ export default function MemoryGame({ knownWords, onFinish, onQuit, buddyEmoji }:
   }
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col">
+    <div className="min-h-screen w-full max-w-md mx-auto px-4 flex flex-col">
       <div className="pt-4 pb-2 flex items-center justify-between">
         <button
           type="button"
