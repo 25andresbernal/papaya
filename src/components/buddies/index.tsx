@@ -17,6 +17,7 @@ import Osito from './Osito'
 import Delfi from './Delfi'
 import Andi from './Andi'
 import Jagu from './Jagu'
+import Drago from './Drago'
 
 export type { Mood, BuddyProps }
 
@@ -33,6 +34,7 @@ export const BUDDY_ART: Record<string, ComponentType<BuddyProps>> = {
   delfi: Delfi,
   andi: Andi,
   jagu: Jagu,
+  drago: Drago,
 }
 
 export default function Buddy({ id, mood = 'happy', size = 96, className = '' }: { id: string; mood?: Mood; size?: number; className?: string }) {

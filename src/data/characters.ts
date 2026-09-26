@@ -36,6 +36,16 @@ export const CHARACTERS: Character[] = [
     catchphrase: '¡Hola, amigo!',
   },
   {
+    id: 'drago',
+    name: 'Drago the Dragon',
+    emoji: '🐉',
+    rarity: 'common',
+    cost: 0,
+    blurb: 'Drago is purple and breathes sparkles, not fire.',
+    home: 'A secret cave in the Andes',
+    catchphrase: '¡Fuego!',
+  },
+  {
     id: 'pinki',
     name: 'Pinki the Flamingo',
     emoji: '🦩',
