@@ -6,10 +6,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Screen from '../components/Screen'
 import Hero from '../components/Hero'
+import Button from '../components/Button'
 import { usePlayer } from '../game/PlayerContext'
 import { sfx } from '../audio/sound'
 import { ALL_LESSONS, UNITS, isLessonUnlocked, isUnitComplete, nextLesson, wordsForLesson } from '../data/words'
 import { WORLD_TITLE, WORLD_SUBTITLE } from '../data/curriculum'
+import { formatMsShort } from '../utils/format'
 import type { UnitColor } from '../types'
 
 /** Maps each unit's theme color name to a real Tailwind background class. */
@@ -47,9 +49,17 @@ export default function PathScreen() {
 
   return (
     <Screen>
-      <div className="pt-2 pb-2 text-center">
+      <div className="pt-2 pb-2 text-center relative">
         <h1 className="font-display text-3xl font-bold text-papaya-dark">{WORLD_TITLE}</h1>
         <p className="text-ink-soft font-bold">{WORLD_SUBTITLE}</p>
+        <Button
+          color="sky"
+          size="sm"
+          className="mt-2"
+          onClick={() => navigate('/race')}
+        >
+          🏁 Race
+        </Button>
       </div>
 
       <div className="flex flex-col items-center gap-8 pb-8">
@@ -111,9 +121,16 @@ export default function PathScreen() {
                       {!unlocked ? (
                         <span className="text-xs font-display font-bold text-ink-soft">Locked</span>
                       ) : done ? (
-                        <span className="text-sm" aria-label={`${crowns} crowns`}>
-                          {'⭐'.repeat(crowns)}
-                        </span>
+                        <>
+                          <span className="text-sm" aria-label={`${crowns} crowns`}>
+                            {'⭐'.repeat(crowns)}
+                          </span>
+                          {player.lessonBestMs[lesson.id] !== undefined && (
+                            <span className="text-xs font-display font-bold text-sky-dark">
+                              ⏱ {formatMsShort(player.lessonBestMs[lesson.id])}
+                            </span>
+                          )}
+                        </>
                       ) : (
                         <span className="text-xs font-display font-bold text-papaya-dark">START</span>
                       )}

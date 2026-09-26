@@ -1,7 +1,7 @@
 // Practice mode: a quick session built from the words the kid is still shaky on.
 // Same engine as a lesson, but it isn't tied to one place on the map.
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getWord } from '../data/words'
 import { usePlayer } from '../game/PlayerContext'
@@ -17,6 +17,7 @@ import SpeakButton from '../components/SpeakButton'
 import ExerciseRunner from '../components/exercises/ExerciseRunner'
 import LessonComplete from '../components/exercises/LessonComplete'
 import { mascotLine } from '../ai/mascot'
+import { formatMsShort } from '../utils/format'
 
 export default function PracticeScreen() {
   const navigate = useNavigate()
@@ -37,10 +38,29 @@ export default function PracticeScreen() {
     return ids.map(getWord).filter((w): w is NonNullable<typeof w> => !!w)
   }, [exercises])
 
+  // The stopwatch: starts the moment the kid taps Start, not during the intro card.
+  const startedAtRef = useRef<number | null>(null)
+  const [liveMs, setLiveMs] = useState(0)
+
+  useEffect(() => {
+    if (!started || summary) return
+    const iv = window.setInterval(() => {
+      setLiveMs(startedAtRef.current ? Date.now() - startedAtRef.current : 0)
+    }, 100)
+    return () => window.clearInterval(iv)
+  }, [started, summary])
+
+  function beginRun() {
+    startedAtRef.current = Date.now()
+    setLiveMs(0)
+    setStarted(true)
+  }
+
   function handleFinish(results: ExerciseResult[]) {
     if (completedRef.current) return
     completedRef.current = true
-    const s = completeLesson('practice', 'practice', results)
+    const elapsedMs = startedAtRef.current ? Date.now() - startedAtRef.current : 0
+    const s = completeLesson('practice', 'practice', results, elapsedMs)
     setSummary(s)
   }
 
@@ -52,6 +72,8 @@ export default function PracticeScreen() {
     const fresh = buildPracticeExercises(player)
     setExercises(fresh)
     setTotal(fresh.length)
+    startedAtRef.current = Date.now()
+    setLiveMs(0)
     setRunKey((k) => k + 1)
   }
 
@@ -62,6 +84,14 @@ export default function PracticeScreen() {
       <div className="flex items-center gap-3 pt-3">
         <BackButton onClick={() => setShowQuit(true)} label="Quit practice" />
         <ProgressBar value={done} max={Math.max(total, 1)} color="bg-leaf" className="flex-1" />
+        {started && !summary && player.settings.raceClock && (
+          <span
+            className="font-display font-bold text-sky-dark whitespace-nowrap"
+            aria-label={`Time ${formatMsShort(liveMs)}`}
+          >
+            ⏱ {formatMsShort(liveMs)}
+          </span>
+        )}
         {combo >= 2 && (
           <span className="font-display font-bold text-coral whitespace-nowrap" aria-label={`Combo ${combo}`}>
             🔥 x{combo}
@@ -102,6 +132,11 @@ export default function PracticeScreen() {
         <div className="flex-1 flex flex-col items-center justify-center gap-6 text-center">
           <Mascot buddyId={player.buddyId} mood="excited" size="lg" message={mascotLine('practice', { name: player.name })} />
           <h1 className="font-display text-2xl font-bold">Practice time</h1>
+          {player.lessonBestMs.practice !== undefined && (
+            <p className="font-display font-bold text-sky-dark">
+              ⏱ Your best: {formatMsShort(player.lessonBestMs.practice)}. Beat it!
+            </p>
+          )}
           <div className="flex flex-wrap gap-2 justify-center">
             {previewWords.map((w) => (
               <div key={w.id} className="flex items-center gap-2 bg-white rounded-2xl pl-3 pr-2 py-2 shadow-chunky-sm">
@@ -111,7 +146,7 @@ export default function PracticeScreen() {
               </div>
             ))}
           </div>
-          <Button color="leaf" size="xl" full onClick={() => setStarted(true)}>
+          <Button color="leaf" size="xl" full onClick={beginRun}>
             Start
           </Button>
         </div>

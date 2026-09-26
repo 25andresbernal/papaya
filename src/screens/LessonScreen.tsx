@@ -18,6 +18,7 @@ import SpeakButton from '../components/SpeakButton'
 import ExerciseRunner from '../components/exercises/ExerciseRunner'
 import LessonComplete from '../components/exercises/LessonComplete'
 import { mascotLine } from '../ai/mascot'
+import { formatMsShort } from '../utils/format'
 
 export default function LessonScreen() {
   const { lessonId } = useParams<{ lessonId: string }>()
@@ -40,10 +41,29 @@ export default function LessonScreen() {
   const [summary, setSummary] = useState<LessonSummary | null>(null)
   const completedRef = useRef(false)
 
+  // The stopwatch: starts the moment the kid taps Start, not during the intro card.
+  const startedAtRef = useRef<number | null>(null)
+  const [liveMs, setLiveMs] = useState(0)
+
+  useEffect(() => {
+    if (!started || summary) return
+    const iv = window.setInterval(() => {
+      setLiveMs(startedAtRef.current ? Date.now() - startedAtRef.current : 0)
+    }, 100)
+    return () => window.clearInterval(iv)
+  }, [started, summary])
+
+  function beginRun() {
+    startedAtRef.current = Date.now()
+    setLiveMs(0)
+    setStarted(true)
+  }
+
   function handleFinish(results: ExerciseResult[]) {
     if (!loc || completedRef.current) return
     completedRef.current = true
-    const s = completeLesson(loc.lesson.id, loc.unit.id, results)
+    const elapsedMs = startedAtRef.current ? Date.now() - startedAtRef.current : 0
+    const s = completeLesson(loc.lesson.id, loc.unit.id, results, elapsedMs)
     setSummary(s)
   }
 
@@ -55,6 +75,8 @@ export default function LessonScreen() {
     setTotal(exercises.length)
     setCombo(0)
     setExercises(buildLessonExercises(loc.lesson, player))
+    startedAtRef.current = Date.now()
+    setLiveMs(0)
     setRunKey((k) => k + 1)
   }
 
@@ -69,6 +91,14 @@ export default function LessonScreen() {
       <div className="flex items-center gap-3 pt-3">
         <BackButton onClick={() => setShowQuit(true)} label="Quit lesson" />
         <ProgressBar value={done} max={Math.max(total, 1)} color="bg-leaf" className="flex-1" />
+        {started && !summary && player.settings.raceClock && (
+          <span
+            className="font-display font-bold text-sky-dark whitespace-nowrap"
+            aria-label={`Time ${formatMsShort(liveMs)}`}
+          >
+            ⏱ {formatMsShort(liveMs)}
+          </span>
+        )}
         {combo >= 2 && (
           <span className="font-display font-bold text-coral whitespace-nowrap" aria-label={`Combo ${combo}`}>
             🔥 x{combo}
@@ -118,6 +148,11 @@ export default function LessonScreen() {
             })}
           />
           <h1 className="font-display text-2xl font-bold">{loc.lesson.title}</h1>
+          {player.lessonBestMs[loc.lesson.id] !== undefined && (
+            <p className="font-display font-bold text-sky-dark">
+              ⏱ Your best: {formatMsShort(player.lessonBestMs[loc.lesson.id])}. Beat it!
+            </p>
+          )}
           <div className="flex flex-wrap gap-2 justify-center">
             {words.map((w) => (
               <div key={w.id} className="flex items-center gap-2 bg-white rounded-2xl pl-3 pr-2 py-2 shadow-chunky-sm">
@@ -127,7 +162,7 @@ export default function LessonScreen() {
               </div>
             ))}
           </div>
-          <Button color="leaf" size="xl" full onClick={() => setStarted(true)}>
+          <Button color="leaf" size="xl" full onClick={beginRun}>
             Start
           </Button>
         </div>
