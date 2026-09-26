@@ -151,7 +151,7 @@ export default function FeedGame({ knownWords, onFinish, onQuit, buddyEmoji }: M
   const round = rounds[roundIndex]
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 flex flex-col">
+    <div className="min-h-screen w-full max-w-md mx-auto px-4 flex flex-col">
       {/* Trays bob gently, and a chosen tray flies up to Capi. */}
       <style>{`
         @keyframes fly-up {

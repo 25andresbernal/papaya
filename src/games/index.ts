@@ -10,6 +10,7 @@ import type { MiniGameProps } from './types'
 export const GAME_COMPONENTS: Record<string, ComponentType<MiniGameProps>> = {
   pinata: lazy(() => import('./PinataGame')),
   memory: lazy(() => import('./MemoryGame')),
+  flip: lazy(() => import('./FlipGame')),
   feed: lazy(() => import('./FeedGame')),
   catch: lazy(() => import('./CatchGame')),
   paint: lazy(() => import('./PaintGame')),

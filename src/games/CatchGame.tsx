@@ -200,7 +200,7 @@ export default function CatchGame({ knownWords, onFinish, onQuit, buddyEmoji }: 
   }, [phase, score, onFinish])
 
   return (
-    <div className="min-h-screen max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
+    <div className="min-h-screen w-full max-w-md mx-auto px-4 py-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <Button color="white" size="sm" onClick={onQuit}>
           ✕ Quit

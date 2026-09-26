@@ -25,6 +25,16 @@ export const GAMES: MiniGameDef[] = [
     usesSpanish: true,
   },
   {
+    id: 'flip',
+    title: 'Flip & Match',
+    emoji: '🔄',
+    description: 'Match hola with hi. Beat a level and the next one is harder!',
+    unlockCost: 150,
+    requiresUnitId: 'u1',
+    ticketCost: 1,
+    usesSpanish: true,
+  },
+  {
     id: 'feed',
     title: 'Feed Capi',
     emoji: '🍉',
