@@ -1,0 +1,103 @@
+/* Tailwind gives us ready-made styles like "p-4" and "bg-papaya". */
+@import "tailwindcss";
+
+/* These are our colors. Change them here and they change everywhere. */
+@theme {
+  --font-display: "Fredoka", "Baloo 2", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+
+  --color-papaya: #FF8A3D;
+  --color-papaya-dark: #E56F1F;
+  --color-papaya-light: #FFB36B;
+  --color-seed: #3B2A1A;
+  --color-leaf: #3DAA47;
+  --color-leaf-dark: #2E8A38;
+  --color-sky: #4DA8DA;
+  --color-sky-dark: #2F8AC0;
+  --color-sun: #FFC93C;
+  --color-sun-dark: #E0AA1A;
+  --color-coral: #FF6B6B;
+  --color-coral-dark: #E04E4E;
+  --color-cream: #FFF6E5;
+  --color-cream-dark: #F6E7CC;
+  --color-ink: #2D2A26;
+  --color-ink-soft: #6B655C;
+
+  /* Kahoot-style answer button colors. */
+  --color-btn-red: #E21B3C;
+  --color-btn-blue: #1368CE;
+  --color-btn-yellow: #D89E00;
+  --color-btn-green: #26890C;
+
+  --radius-bubble: 1.5rem;
+  --shadow-chunky: 0 6px 0 0 rgba(0, 0, 0, 0.18);
+  --shadow-chunky-sm: 0 4px 0 0 rgba(0, 0, 0, 0.18);
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  user-select: none;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+/* Little animations we reuse everywhere. */
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 138, 61, 0.7); }
+  100% { box-shadow: 0 0 0 16px rgba(255, 138, 61, 0); }
+}
+
+.animate-pop { animation: pop 0.35s ease-out both; }
+.animate-wiggle { animation: wiggle 0.4s ease-in-out; }
+.animate-bounce-soft { animation: bounce-soft 1.2s ease-in-out infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
+.animate-float { animation: float 2.4s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 1.4s ease-out infinite; }
+
+/* Chunky "press me" buttons that move down when you tap them. */
+.btn-chunky {
+  box-shadow: var(--shadow-chunky);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+}
+.btn-chunky:active:not(:disabled) {
+  transform: translateY(6px);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.18);
+}
+.btn-chunky:disabled {
+  filter: saturate(0.4);
+  opacity: 0.7;
+}
