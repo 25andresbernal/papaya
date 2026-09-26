@@ -7,6 +7,8 @@ import Screen from '../components/Screen'
 import BackButton from '../components/BackButton'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
+import Mascot from '../components/Mascot'
+import VoicePicker from '../components/VoicePicker'
 import { usePlayer } from '../game/PlayerContext'
 import { sfx } from '../audio/sound'
 import { HERO_COLORS } from '../data/shop'
@@ -15,7 +17,8 @@ import { randInt } from '../utils/random'
 import type { PlayerState } from '../types'
 
 export default function SettingsScreen() {
-  const { player, setSetting, setHeroColor, update, reset } = usePlayer()
+  const { player, setSetting, setHeroColor, update, reset, signOut, createProfile, deleteProfile, activeProfileId } =
+    usePlayer()
   const navigate = useNavigate()
 
   const [name, setName] = useState(player.name)
@@ -25,6 +28,7 @@ export default function SettingsScreen() {
   const [answer, setAnswer] = useState('')
   const [gateError, setGateError] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false)
 
   function toggle(key: keyof PlayerState['settings']) {
     sfx.tap()
@@ -60,6 +64,24 @@ export default function SettingsScreen() {
     navigate('/welcome')
   }
 
+  function switchPlayer() {
+    sfx.tap()
+    signOut()
+    navigate('/who')
+  }
+
+  function addPlayer() {
+    sfx.tap()
+    createProfile()
+    navigate('/welcome')
+  }
+
+  function doRemovePlayer() {
+    sfx.tap()
+    if (activeProfileId) deleteProfile(activeProfileId)
+    navigate('/who')
+  }
+
   return (
     <Screen>
       <div className="flex items-center gap-2 pt-2">
@@ -67,12 +89,32 @@ export default function SettingsScreen() {
         <h1 className="font-display text-2xl font-bold text-ink">Settings</h1>
       </div>
 
+      <section className="mt-4 bg-white rounded-3xl p-4 shadow-chunky-sm flex flex-col gap-3">
+        <h2 className="font-display font-bold text-lg text-ink">Players</h2>
+        <div className="flex items-center gap-3">
+          <Mascot buddyId={player.buddyId} size="sm" />
+          <span className="font-display font-bold text-xl text-ink">{player.name || 'Explorer'}</span>
+        </div>
+        <div className="flex gap-3">
+          <Button color="sky" size="md" full onClick={switchPlayer}>
+            Switch player
+          </Button>
+          <Button color="white" size="md" full onClick={addPlayer}>
+            Add a player
+          </Button>
+        </div>
+      </section>
+
       <div className="mt-4 flex flex-col gap-3">
         <ToggleRow label="Sounds" value={player.settings.sound} onToggle={() => toggle('sound')} />
         <ToggleRow label="Music" value={player.settings.music} onToggle={() => toggle('music')} />
         <ToggleRow label="Read Spanish out loud" value={player.settings.speak} onToggle={() => toggle('speak')} />
         <ToggleRow label="Timer (for big kids)" value={player.settings.timer} onToggle={() => toggle('timer')} />
       </div>
+
+      <section className="mt-6">
+        <VoicePicker />
+      </section>
 
       <section className="mt-6">
         <h2 className="font-display font-bold text-lg text-ink mb-2">Hero color</h2>
@@ -125,11 +167,14 @@ export default function SettingsScreen() {
             <Button color="coral" size="md" full onClick={() => setShowResetConfirm(true)}>
               Start over
             </Button>
+            <Button color="coral" size="md" full onClick={() => setShowRemoveConfirm(true)}>
+              Remove this player
+            </Button>
           </div>
         )}
       </section>
 
-      <p className="mt-auto mb-4 text-center text-xs text-ink-soft font-bold">Papaya v0.1</p>
+      <p className="mt-auto mb-4 text-center text-xs text-ink-soft font-bold">Papaya v1.1 · Pictures by Twemoji (CC-BY 4.0)</p>
 
       {showGate && question && (
         <Modal onClose={() => setShowGate(false)}>
@@ -160,6 +205,21 @@ export default function SettingsScreen() {
             </Button>
             <Button color="coral" size="md" full onClick={doReset}>
               Erase
+            </Button>
+          </div>
+        </Modal>
+      )}
+
+      {showRemoveConfirm && (
+        <Modal onClose={() => setShowRemoveConfirm(false)}>
+          <h2 className="font-display text-xl font-bold text-ink mb-3">Remove {player.name || 'this player'}?</h2>
+          <p className="text-ink-soft font-bold mb-4">Their progress will be erased for good.</p>
+          <div className="flex gap-3">
+            <Button color="white" size="md" full onClick={() => setShowRemoveConfirm(false)}>
+              Cancel
+            </Button>
+            <Button color="coral" size="md" full onClick={doRemovePlayer}>
+              Remove
             </Button>
           </div>
         </Modal>

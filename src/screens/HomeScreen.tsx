@@ -26,7 +26,7 @@ function hashText(text: string): number {
 }
 
 export default function HomeScreen() {
-  const { player, openDailyChest, chestAvailable } = usePlayer()
+  const { player, openDailyChest, chestAvailable, signOut } = usePlayer()
   const navigate = useNavigate()
   const [wiggle, setWiggle] = useState(false)
   const [chestReward, setChestReward] = useState<{ coins: number; tickets: number } | null>(null)
@@ -67,9 +67,25 @@ export default function HomeScreen() {
   const words = useMemo(() => learnedWords(player), [player])
   const wordOfDay = words.length > 0 ? words[hashText(today) % words.length] : null
 
+  function switchPlayer() {
+    sfx.tap()
+    signOut()
+    navigate('/who')
+  }
+
   return (
     <Screen>
-      <h1 className="mt-2 font-display text-3xl font-bold text-ink">¡Hola, {player.name || 'friend'}!</h1>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <h1 className="font-display text-3xl font-bold text-ink">¡Hola, {player.name || 'friend'}!</h1>
+        <button
+          type="button"
+          onClick={switchPlayer}
+          aria-label="Switch player"
+          className="btn-chunky bg-white rounded-full w-10 h-10 flex items-center justify-center text-lg shrink-0 cursor-pointer"
+        >
+          👥
+        </button>
+      </div>
 
       {/* Hero and buddy, side by side. Tap the buddy to hear them talk. */}
       <section className="mt-4 w-full bg-white rounded-3xl p-4 shadow-chunky-sm flex items-center gap-3 animate-pop">
