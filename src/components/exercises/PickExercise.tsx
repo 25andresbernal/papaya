@@ -51,7 +51,7 @@ export default function PickExercise({
           <>
             {ex.promptEmoji && (
               <div className="leading-none">
-                <WordArt wordId={ex.correctWordId} emoji={ex.promptEmoji} size={76} label={ex.prompt} />
+                <WordArt wordId={ex.correctWordId} emoji={ex.promptEmoji} size={128} label={ex.prompt} />
               </div>
             )}
             <div className="flex items-center gap-2 flex-wrap justify-center">
