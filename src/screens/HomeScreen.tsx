@@ -99,17 +99,24 @@ export default function HomeScreen() {
         </button>
       </div>
 
-      {/* Hero and buddy, side by side. Tap the buddy to hear them talk. */}
-      <section className="mt-4 w-full bg-white rounded-3xl p-4 shadow-chunky-sm flex items-center gap-3 animate-pop">
-        <Hero look={player.hero} size={140} />
-        <button
-          type="button"
-          onClick={tapBuddy}
-          aria-label={`Tap ${buddy.name}`}
-          className="flex-1 min-w-0 text-left cursor-pointer"
-        >
-          <Mascot buddyId={player.buddyId} message={line} size="md" mood={buddyMood} className={wiggle ? 'animate-wiggle' : ''} />
-        </button>
+      {/* The buddy talks in a bubble on top. Hero and buddy stand together below.
+          Tap the buddy to hear them talk. */}
+      <section className="mt-4 w-full bg-white rounded-3xl p-4 shadow-chunky-sm border-2 border-cream-dark animate-pop">
+        <div className="relative bg-cream rounded-bubble px-4 py-3 border-2 border-cream-dark">
+          <p className="font-body font-bold text-ink text-base leading-snug text-center">{line}</p>
+          <span className="absolute right-12 -bottom-2 w-4 h-4 bg-cream border-r-2 border-b-2 border-cream-dark rotate-45" />
+        </div>
+        <div className="mt-3 flex items-end justify-around">
+          <Hero look={player.hero} size={130} mood={buddyMood === 'excited' ? 'excited' : 'happy'} />
+          <button
+            type="button"
+            onClick={tapBuddy}
+            aria-label={`Tap ${buddy.name}`}
+            className={`cursor-pointer active:scale-95 transition-transform ${wiggle ? 'animate-wiggle' : ''}`}
+          >
+            <Mascot buddyId={player.buddyId} size="md" mood={buddyMood} />
+          </button>
+        </div>
       </section>
 
       {/* Today's goal: one lesson keeps the streak alive. */}

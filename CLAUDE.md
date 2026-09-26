@@ -228,7 +228,8 @@ Claude powers the mascot's voice. Everything has a canned fallback.
 3. **Phase 3 (Meta game):** Home, path, buddies, shop, arcade, settings, daily chest, celebrations.
 4. **Phase 4 (Arcade):** Six mini-games.
 5. **Phase 5 (AI):** Mascot messages through Claude with fallbacks.
-6. **Phase 6 (Test and polish):** Andre's kids play. Fix what breaks. Tune the economy.
+6. **Phase 6 (Test and polish):** Andre's kids play. Fix what breaks. Tune the economy. First round done 2026-09-26, which produced v1.1.
+7. **Phase 7 (v1.1):** Profiles, placement, race mode, voices, SVG buddies and hero, Twemoji pictures. Done 2026-09-26.
 
 ---
 

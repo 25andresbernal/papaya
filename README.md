@@ -12,6 +12,11 @@ Lessons earn papayas and tickets. Papayas unlock buddy characters, outfits, and 
 - XP, hero levels, daily streaks with a streak freeze, a daily chest, and crowns for every lesson.
 - 12 collectible Colombian animal buddies, a cosmetic shop, and an arcade of 6 mini-games.
 - An AI mascot voice powered by Claude, with built-in lines when the AI is off.
+- Player profiles so brothers and sisters can share one phone, with a "Who is playing?" screen.
+- A chat-style welcome and a placement game that starts a kid at the right level.
+- Every lesson is timed. Beat your best time, and see a leaderboard of the players on your phone.
+- Twelve hand-drawn buddy characters with moods. Miss a few days and your buddy gets dramatic.
+- A voice picker so Spanish sounds Latin American and English sounds American, using the voices on your device.
 - Everything saves in the browser. No accounts. No ads. No real money.
 
 ## Run it
