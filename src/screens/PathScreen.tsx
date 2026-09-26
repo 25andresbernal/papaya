@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import Screen from '../components/Screen'
 import Hero from '../components/Hero'
 import Button from '../components/Button'
+import Pic from '../components/Pic'
 import { usePlayer } from '../game/PlayerContext'
 import { sfx } from '../audio/sound'
 import { ALL_LESSONS, UNITS, isLessonUnlocked, isUnitComplete, nextLesson, wordsForLesson } from '../data/words'
@@ -67,9 +68,15 @@ export default function PathScreen() {
           const complete = isUnitComplete(unit.id, player)
           return (
             <div key={unit.id} className="w-full flex flex-col items-center gap-6">
-              <div className={`w-full rounded-3xl p-4 text-center text-white shadow-chunky-sm ${UNIT_BG[unit.color]}`}>
-                <div className="text-4xl leading-none" aria-hidden="true">
-                  {unit.emoji}
+              <div
+                className={`w-full rounded-3xl p-4 text-center text-white shadow-chunky-sm border-2 border-black/10 ${UNIT_BG[unit.color]}`}
+                style={{
+                  backgroundImage: 'radial-gradient(rgba(255,255,255,0.25) 2px, transparent 2px)',
+                  backgroundSize: '14px 14px',
+                }}
+              >
+                <div className="leading-none flex justify-center">
+                  <Pic emoji={unit.emoji} size={40} label={unit.title} />
                 </div>
                 <h2 className="font-display text-xl font-bold">{unit.title}</h2>
                 <p className="text-sm font-bold opacity-90">{unit.description}</p>
@@ -116,7 +123,7 @@ export default function PathScreen() {
                           }
                           ${shakeId === lesson.id ? 'animate-shake' : ''}`}
                       >
-                        {!unlocked ? '🔒' : emoji}
+                        <Pic emoji={!unlocked ? '🔒' : emoji} size={34} label={!unlocked ? 'Locked' : lesson.title} />
                       </button>
                       {!unlocked ? (
                         <span className="text-xs font-display font-bold text-ink-soft">Locked</span>

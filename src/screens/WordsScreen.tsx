@@ -12,6 +12,7 @@ import { sfx, speak } from '../audio/sound'
 import { UNITS, WORDS, learnedCount, wordsForUnit } from '../data/words'
 import { wordStrength } from '../game/spacedRepetition'
 import type { Word, WordStat } from '../types'
+import Pic from '../components/Pic'
 
 export default function WordsScreen() {
   const { player } = usePlayer()
@@ -41,7 +42,7 @@ export default function WordsScreen() {
         {UNITS.map((unit) => (
           <section key={unit.id}>
             <h2 className="font-display font-bold text-lg text-ink mb-2 flex items-center gap-2">
-              <span aria-hidden="true">{unit.emoji}</span>
+              <Pic emoji={unit.emoji} size={20} label="" />
               {unit.title}
             </h2>
             <div className="grid grid-cols-3 gap-3">
@@ -63,12 +64,10 @@ function WordChip({ word, stat }: { word: Word; stat?: WordStat }) {
   if (!seen) {
     return (
       <div
-        className="rounded-2xl bg-cream-dark/60 p-3 flex flex-col items-center justify-center gap-1 opacity-70"
+        className="rounded-2xl border-2 border-black/10 bg-cream-dark/60 p-3 flex flex-col items-center justify-center gap-1 opacity-70"
         aria-label="Not learned yet"
       >
-        <span className="text-3xl" aria-hidden="true">
-          ❓
-        </span>
+        <Pic emoji="❓" size={34} label="" />
         <span className="text-xs font-display font-bold text-ink-soft">???</span>
       </div>
     )
@@ -83,11 +82,9 @@ function WordChip({ word, stat }: { word: Word; stat?: WordStat }) {
         sfx.pop()
         speak(word.es)
       }}
-      className="btn-chunky bg-white rounded-2xl p-3 flex flex-col items-center gap-1 cursor-pointer"
+      className="btn-chunky bg-white border-2 border-black/10 rounded-2xl p-3 flex flex-col items-center gap-1 cursor-pointer"
     >
-      <span className="text-3xl leading-none" aria-hidden="true">
-        {word.emoji}
-      </span>
+      <Pic emoji={word.emoji} size={34} className="leading-none" label={word.en} />
       <span className="font-display font-bold text-sm text-papaya-dark">{word.es}</span>
       <span className="text-xs text-ink-soft font-bold">{word.en}</span>
       <span className="flex gap-0.5" aria-label={`Strength ${dots} of 5`}>

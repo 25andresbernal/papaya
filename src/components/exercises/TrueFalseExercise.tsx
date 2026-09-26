@@ -5,6 +5,7 @@ import type { TrueFalseExercise as TrueFalseExerciseData } from '../../types'
 import { isCorrectTrueFalse } from '../../game/exercises'
 import { sfx } from '../../audio/sound'
 import SpeakButton from '../SpeakButton'
+import Pic from '../Pic'
 
 export default function TrueFalseExercise({
   ex,
@@ -29,7 +30,9 @@ export default function TrueFalseExercise({
 
   return (
     <div className="flex flex-col items-center gap-6 flex-1 mt-4">
-      <div className="text-7xl leading-none">{ex.emoji}</div>
+      <div className="leading-none">
+        <Pic emoji={ex.emoji} size={76} label={ex.en} />
+      </div>
       <div className="flex items-center gap-2 flex-wrap justify-center">
         <span className="font-display text-3xl font-bold">{ex.es}</span>
         <SpeakButton text={ex.es} size="sm" />
@@ -47,7 +50,7 @@ export default function TrueFalseExercise({
             ${answered && !yesIsRight && choice === true ? 'opacity-60' : ''}
             ${answered && !yesIsRight && choice !== true ? 'opacity-40' : ''}`}
         >
-          <span className="text-4xl leading-none">👍</span>
+          <Pic emoji="👍" size={40} className="leading-none" label="Yes" />
           <span>
             YES
             {answered && yesIsRight ? ' ✓' : ''}
@@ -63,7 +66,7 @@ export default function TrueFalseExercise({
             ${answered && !noIsRight && choice === false ? 'opacity-60' : ''}
             ${answered && !noIsRight && choice !== false ? 'opacity-40' : ''}`}
         >
-          <span className="text-4xl leading-none">👎</span>
+          <Pic emoji="👎" size={40} className="leading-none" label="No" />
           <span>
             NO
             {answered && noIsRight ? ' ✓' : ''}

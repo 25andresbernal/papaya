@@ -3,6 +3,7 @@
 
 import { usePlayer } from '../game/PlayerContext'
 import { levelProgress } from '../game/economy'
+import Pic from './Pic'
 
 export default function TopBar() {
   const { player } = usePlayer()
@@ -34,7 +35,9 @@ export default function TopBar() {
 function Stat({ emoji, value, label, color }: { emoji: string; value: number; label: string; color: string }) {
   return (
     <div className={`flex items-center gap-1 ${color}`} title={label} aria-label={`${value} ${label}`}>
-      <span className="text-xl">{emoji}</span>
+      <span className="inline-flex items-center justify-center rounded-full border-2 border-cream-dark bg-white px-2 py-0.5">
+        <Pic emoji={emoji} size={22} label="" />
+      </span>
       <span>{value}</span>
     </div>
   )

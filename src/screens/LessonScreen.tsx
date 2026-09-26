@@ -15,6 +15,7 @@ import Modal from '../components/Modal'
 import Button from '../components/Button'
 import Mascot from '../components/Mascot'
 import SpeakButton from '../components/SpeakButton'
+import Pic from '../components/Pic'
 import ExerciseRunner from '../components/exercises/ExerciseRunner'
 import LessonComplete from '../components/exercises/LessonComplete'
 import { mascotLine } from '../ai/mascot'
@@ -156,7 +157,7 @@ export default function LessonScreen() {
           <div className="flex flex-wrap gap-2 justify-center">
             {words.map((w) => (
               <div key={w.id} className="flex items-center gap-2 bg-white rounded-2xl pl-3 pr-2 py-2 shadow-chunky-sm">
-                <span className="text-2xl leading-none">{w.emoji}</span>
+                <Pic emoji={w.emoji} size={28} className="leading-none" label={w.en} />
                 <span className="font-display font-bold">{w.es}</span>
                 <SpeakButton text={w.es} size="sm" />
               </div>
