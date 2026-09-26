@@ -20,6 +20,8 @@ import SettingsScreen from './screens/SettingsScreen'
 import PracticeScreen from './screens/PracticeScreen'
 import ProfilesScreen from './screens/ProfilesScreen'
 import RaceScreen from './screens/RaceScreen'
+import StoriesScreen from './screens/StoriesScreen'
+import StoryScreen from './screens/StoryScreen'
 
 /** Keeps the sound settings in sync with the audio engine. */
 function AudioSync() {
@@ -34,7 +36,7 @@ function AudioSync() {
 
   // Music plays in lessons and games, not on menus. Music must be on in settings.
   useEffect(() => {
-    const musicScreens = ['/lesson', '/game', '/practice']
+    const musicScreens = ['/lesson', '/game', '/practice', '/story/']
     const wants = player.settings.music && musicScreens.some((p) => location.pathname.startsWith(p))
     if (wants) startMusic()
     else stopMusic()
@@ -77,6 +79,22 @@ export default function App() {
         <Routes>
           <Route path="/who" element={<ProfilesScreen />} />
           <Route path="/welcome" element={<OnboardingScreen />} />
+          <Route
+            path="/stories"
+            element={
+              <RequireOnboarding>
+                <StoriesScreen />
+              </RequireOnboarding>
+            }
+          />
+          <Route
+            path="/story/:storyId"
+            element={
+              <RequireOnboarding>
+                <StoryScreen />
+              </RequireOnboarding>
+            }
+          />
           <Route
             path="/race"
             element={

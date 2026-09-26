@@ -154,12 +154,13 @@ Tileset** (CC0 generic jungle — [itch.io](https://itch.io/games-like/435617/fa
 are strong, zero-cost fits. These solve HUD chrome and background art for free; they don't solve
 "13 unique Colombian-animal buddies," since a generic pack won't contain Tico the toucan by name.
 
-**Ranking for Papaya:**
-1. **(e) free CC0 packs for HUD chrome and jungle backgrounds** — ship immediately, zero cost, zero risk.
-2. **(a) code-generated pixel sprites for icons, coins, badges, and small HUD glyphs** — fits the existing "no binary assets" workflow and AI-agent-friendly production.
-3. **(b) keep flat SVG characters inside a pixel frame** — the pragmatic choice for the cast that already exists; see Section 6.
-4. **(d) commission a pixel artist** — the right *future* move only if/when Andre decides to fully repaint the 13 buddies, budgeted per Section 6's Option C.
-5. **(c) AI-generated pixel art** — promising but immature for a consistent named cast; worth a small trial (e.g., regenerate one buddy with Retro Diffusion's reference-image mode) before committing a budget to option (d).
+**Ranking for Papaya:** (1) **(e)** free CC0 packs for HUD chrome and jungle backgrounds — ship
+now, zero cost/risk; (2) **(a)** code-generated pixel sprites for icons, coins, badges, small HUD
+glyphs — fits the "no binary assets" workflow; (3) **(b)** flat SVG characters inside a pixel
+frame — the pragmatic choice for the existing cast (Section 6); (4) **(d)** commission an artist —
+the right *future* move only if Andre decides to fully repaint the buddies; (5) **(c)** AI-
+generated pixel art — promising but immature for a consistent named cast; worth a small trial
+(one buddy via Retro Diffusion's reference mode) before budgeting for (d).
 
 ---
 
@@ -298,46 +299,46 @@ triangle arpeggio for combo milestones and level-ups, and a simple looped square
 lesson music, sped up when the optional timer is on (existing rule, unchanged).
 
 **Build order:**
-1. Extend the Tailwind color tokens with the outline/highlight steps (Section 5); add Pixelify
-   Sans and Press Start 2P as new `--font-*` tokens, loaded from Google Fonts alongside Fredoka/Nunito.
+1. Add the outline/highlight color tokens (Section 5) and Pixelify Sans + Press Start 2P as new
+   `--font-*` tokens alongside Fredoka/Nunito.
 2. Restyle `Button`, the card wrapper, and `TopBar` with the new border/corner/HUD-panel rules —
-   no logic changes, CSS and small markup only.
-3. Build a `StageBanner` component ("UNIT N · STAGE N") shown before a lesson starts, and a
-   `RankResult` component (S/A/B letter, per today's crown thresholds) for the lesson-complete screen.
-4. Add chiptune primitives to `src/audio/` — a square-wave blip, a noise thud, and a simple
-   arpeggiator helper — and re-map existing `sfx.*` calls onto them one at a time.
-5. Add the pixel-pattern background texture app-wide and the jungle background band on Home/Path,
-   sourced from CC0 packs (Kenney Pixel UI Pack for icons, Open Pixel Project jungle set for the backdrop).
-6. Playtest with Andre's kids; only after that, scope a character-conversion phase (Option C)
-   if the direction is landing and a real art budget is on the table.
+   CSS and markup only, no logic changes.
+3. Build a `StageBanner` component ("UNIT N · STAGE N") before a lesson, and a `RankResult`
+   component (S/A/B, per today's crown thresholds) for the lesson-complete screen.
+4. Add chiptune primitives to `src/audio/` (square blip, noise thud, arpeggiator helper) and
+   re-map existing `sfx.*` calls onto them.
+5. Add the pixel-pattern texture app-wide and the jungle band on Home/Path, sourced from CC0
+   packs (Kenney Pixel UI Pack, Open Pixel Project jungle set).
+6. Playtest with Andre's kids; only then scope a character-conversion phase (Option C) if the
+   direction lands and a real art budget exists.
 
 ---
 
 ## Sources
 
-- [Metal Slug 30th Anniversary: why its pixel art still beats many modern "realistic" games — Creative Bloq](https://www.creativebloq.com/entertainment/gaming/why-metal-slug-still-looks-better-than-many-modern-games)
+- [Why Metal Slug still looks better than many modern games — Creative Bloq](https://www.creativebloq.com/entertainment/gaming/why-metal-slug-still-looks-better-than-many-modern-games)
 - [Metal Slug Is Pixel Art Perfection — Linclo Games](https://linclogames.com/metal-slug-is-pixel-art-perfection/)
 - [Metal Slug Spriting Tutorial — 6th Division's Den](https://6th-divisions-den.com/ms_tutorial.html)
 - [Metal Slug Pixel Art — Sci-Fi-O-Rama](https://www.sci-fi-o-rama.com/2009/10/10/metal-slug-pixel-art/)
 - [Status Screen — Metal Slug Wiki](https://metalslug.fandom.com/wiki/Status_Screen)
-- [2D pixel art style guide: from 8-bit to modern HD — Sprite-AI](https://www.sprite-ai.art/blog/2d-pixel-art-style-guide)
+- [2D pixel art style guide — Sprite-AI](https://www.sprite-ai.art/blog/2d-pixel-art-style-guide)
 - [Arcade Game Design fundamentals — Game Design Skills](https://gamedesignskills.com/game-design/arcade/)
-- [Gameplay Grading (S/A/B rank results screens) — TV Tropes](https://tvtropes.org/pmwiki/pmwiki.php/Main/GameplayGrading)
-- [Pixel Math — retro arcade math game for kids 5-12](https://play.google.com/store/apps/details?id=com.multiplicationquiz.app&hl=en_US)
+- [Gameplay Grading — TV Tropes](https://tvtropes.org/pmwiki/pmwiki.php/Main/GameplayGrading)
+- [Pixel Math — retro arcade math game, ages 5-12](https://play.google.com/store/apps/details?id=com.multiplicationquiz.app&hl=en_US)
 - [Press Start 2P — Google Fonts](https://fonts.google.com/specimen/Press%2BStart%2B2P)
 - [VT323 — Google Fonts](https://fonts.google.com/specimen/VT323)
-- [Top Pixel Fonts On Google Fonts For Retro Designs](https://fontyouneed.com/fonts/top-pixel-fonts-on-google)
+- [Top Pixel Fonts On Google Fonts — Font You Need](https://fontyouneed.com/fonts/top-pixel-fonts-on-google)
 - [What are scanlines? — GamesRadar+](https://www.gamesradar.com/hardware/retro/what-are-scanlines/)
 - [Fun Times With CSS Pixel Art — CSS-Tricks](https://css-tricks.com/fun-times-css-pixel-art/)
-- [CSS image-rendering: pixelated — theosoti](https://theosoti.com/short/crispy-images/)
+- [image-rendering: pixelated — theosoti](https://theosoti.com/short/crispy-images/)
 - [8-Bit Music Synthesis with Web Audio API — GitHub Gist](https://gist.github.com/clawdbrit/46d33c53fbfcbff75df6c08f88d23808)
-- [chiptune-synth — 8-bit audio engine for the browser, GitHub](https://github.com/8Binami/chiptune-synth)
+- [chiptune-synth — GitHub](https://github.com/8Binami/chiptune-synth)
 - [Chiptune sound design — Plutiedev](https://plutiedev.com/chiptune-sounds)
-- [Creating variable duty cycle square waves with the Web Audio API — Dan Black](https://www.danblack.co/blog/variable-duty-cycle-square-wave)
+- [Variable duty cycle square waves — Dan Black](https://www.danblack.co/blog/variable-duty-cycle-square-wave)
 - [Retro Diffusion — AI pixel art generator](https://retrodiffusion.ai/)
-- [Best pixel art generators 2026, tested for game devs — Sprite-AI](https://www.sprite-ai.art/blog/best-pixel-art-generators-2026)
+- [Best pixel art generators 2026 — Sprite-AI](https://www.sprite-ai.art/blog/best-pixel-art-generators-2026)
 - [Kenney.nl — Pixel UI Pack (CC0)](https://kenney.nl/assets/pixel-ui-pack)
-- [OPP2017 — Jungle and temple set — OpenGameArt](https://opengameart.org/content/opp2017-jungle-and-temple-set)
+- [OPP2017 Jungle and Temple Set — OpenGameArt](https://opengameart.org/content/opp2017-jungle-and-temple-set)
 - [Fantasy Jungle Pixel Art Tileset — itch.io](https://itch.io/games-like/435617/fantasy-jungle-pixel-art-tileset)
 - [Fiverr — pixel art character gigs](https://www.fiverr.com/gigs/pixel-art-character)
 - [How much do sprites cost? — 2D Will Never Die](https://2dwillneverdie.com/blog/how-much-do-sprites-cost/)

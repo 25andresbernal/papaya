@@ -154,6 +154,50 @@ export interface LessonSummary {
 }
 
 /* ------------------------------------------------------------------ */
+/* Story books                                                         */
+/* ------------------------------------------------------------------ */
+
+/** One page of a picture book: a Spanish line, its English, and a picture. */
+export interface StoryPage {
+  /** The Spanish sentence, 4 to 8 words, with accents. */
+  es: string
+  /** The same sentence in simple English. */
+  en: string
+  /** Word id whose drawing is the big picture on this page. */
+  artWordId: string
+  /** Optional second drawing shown smaller next to the first. */
+  artWordId2?: string
+  /** Optional tile color for the page background: 'papaya' | 'sky' | 'leaf' | 'sun' | 'coral'. */
+  color?: UnitColor
+}
+
+/** A four-choice question asked after the last page. */
+export interface StoryQuestion {
+  es: string
+  en: string
+  /** Four answers. Each has Spanish and English. */
+  choices: { es: string; en: string; artWordId?: string }[]
+  correctIndex: number
+}
+
+/** A short bilingual picture book. Unlocks with a unit. */
+export interface Story {
+  id: string
+  /** Spanish title: "A comer". */
+  title: string
+  /** English title: "Time to eat". */
+  titleEn: string
+  /** Unit that must have at least one finished lesson before the book opens. */
+  unitId: string
+  /** Word id whose drawing is the cover. */
+  coverWordId: string
+  /** One kid-readable line about the book. */
+  blurb: string
+  pages: StoryPage[]
+  question: StoryQuestion
+}
+
+/* ------------------------------------------------------------------ */
 /* Rewards: characters, shop items, mini-games                         */
 /* ------------------------------------------------------------------ */
 
